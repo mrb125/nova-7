@@ -30,10 +30,10 @@ const PHOTO_MAP: Record<string, string | null> = {
   'medium-dark_curly':    'char_28',
   'medium-dark_bun':      'char_39',
   'medium-dark_hijab':    'char_23',
-  'dark_short':           null,
+  'dark_short':           'char_46',
   'dark_long':            null,
-  'dark_curly':           null,
-  'dark_bun':             null,
+  'dark_curly':           'char_49',
+  'dark_bun':             'char_50',
   'dark_hijab':           null,
 }
 
