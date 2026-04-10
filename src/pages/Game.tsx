@@ -357,7 +357,7 @@ function TimedOutOverlay() {
 // Acoustic feedback via Web Audio API
 // ---------------------------------------------------------------------------
 
-function playBeep(type: 'unlock' | 'event' | 'warning' | 'tick') {
+function playBeep(type: 'unlock' | 'event' | 'warning' | 'tick' | 'complete' | 'achievement' | 'critical') {
   try {
     const ctx = new AudioContext()
     if (type === 'unlock') {
@@ -409,6 +409,45 @@ function playBeep(type: 'unlock' | 'event' | 'warning' | 'tick') {
       gain.gain.setValueAtTime(0.09, ctx.currentTime)
       gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.055)
       osc.start(ctx.currentTime); osc.stop(ctx.currentTime + 0.055)
+    } else if (type === 'complete') {
+      // Level abgeschlossen: aufsteigend C5-E5-G5-C6 — Erfolg/Triumph
+      ;[523, 659, 784, 1047].forEach((freq, i) => {
+        const osc = ctx.createOscillator()
+        const gain = ctx.createGain()
+        osc.connect(gain); gain.connect(ctx.destination)
+        osc.type = 'sine'
+        osc.frequency.value = freq
+        const t = ctx.currentTime + i * 0.12
+        gain.gain.setValueAtTime(0.22, t)
+        gain.gain.exponentialRampToValueAtTime(0.001, t + 0.25)
+        osc.start(t); osc.stop(t + 0.25)
+      })
+    } else if (type === 'achievement') {
+      // Achievement: Fanfare-artig, 2 Töne schnell + 1 lang
+      ;[[784, 0], [784, 0.1], [1047, 0.2]].forEach(([freq, delay]) => {
+        const osc = ctx.createOscillator()
+        const gain = ctx.createGain()
+        osc.connect(gain); gain.connect(ctx.destination)
+        osc.type = 'triangle'
+        osc.frequency.value = freq
+        const t = ctx.currentTime + delay
+        gain.gain.setValueAtTime(0.2, t)
+        gain.gain.exponentialRampToValueAtTime(0.001, t + (delay === 0.2 ? 0.5 : 0.12))
+        osc.start(t); osc.stop(t + (delay === 0.2 ? 0.5 : 0.15))
+      })
+    } else if (type === 'critical') {
+      // Dosimeter kritisch (>120 mSv): tiefer, pulsierender Alarm
+      ;[220, 196, 220].forEach((freq, i) => {
+        const osc = ctx.createOscillator()
+        const gain = ctx.createGain()
+        osc.connect(gain); gain.connect(ctx.destination)
+        osc.type = 'sawtooth'
+        osc.frequency.value = freq
+        const t = ctx.currentTime + i * 0.25
+        gain.gain.setValueAtTime(0.25, t)
+        gain.gain.exponentialRampToValueAtTime(0.001, t + 0.28)
+        osc.start(t); osc.stop(t + 0.28)
+      })
     }
     setTimeout(() => ctx.close(), 1200)
   } catch { /* AudioContext not available */ }
@@ -522,6 +561,7 @@ export default function Game() {
       justificationStatus: 'auto',
     })
     saveState(newState)
+    playBeep('complete')
     setState(newState)
     setTimerActive(false)
     setIsUnlocked(false) // Reset — will be re-checked by the polling effect
@@ -533,6 +573,7 @@ export default function Game() {
         .map(id => ACHIEVEMENTS.find(a => a.id === id))
         .filter(Boolean) as Achievement[]
       setToastAchievements(prev => [...prev, ...unlocked])
+      playBeep('achievement')
     }
   }, [state])
 
@@ -550,6 +591,11 @@ export default function Game() {
   useEffect(() => {
     setTimedOut(false)
   }, [state?.currentLevel])
+
+  // Dosimeter-Warnung bei >120 mSv
+  useEffect(() => {
+    if (state && state.dosimeterMSv > 120) playBeep('critical')
+  }, [state?.dosimeterMSv])
 
   if (!state) return null
 

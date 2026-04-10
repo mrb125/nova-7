@@ -958,6 +958,24 @@ function Dashboard() {
         ))}
       </motion.div>
 
+      {/* QR-Code Einstieg */}
+      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.08 }} className="mb-6">
+        <div className="glass-panel p-4 flex items-center gap-6 flex-wrap">
+          <div>
+            <div className="hud-font text-xs text-cyan-400 tracking-widest mb-1">📱 SCHÜLER-EINSTIEG</div>
+            <div className="text-white font-bold text-sm mb-1">{window.location.origin}</div>
+            <div className="text-slate-400 text-xs">QR-Code scannen → direkt zur App</div>
+          </div>
+          <img
+            src={`https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=${encodeURIComponent(window.location.origin)}&bgcolor=060d1f&color=22d3ee&margin=4`}
+            alt="QR-Code"
+            width={120}
+            height={120}
+            style={{ borderRadius: 8, border: '1px solid rgba(6,182,212,0.3)' }}
+          />
+        </div>
+      </motion.div>
+
       {/* Events Panel */}
       <EventsPanel onTriggered={refresh} />
 
