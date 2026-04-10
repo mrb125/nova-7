@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <title>Nova-7 — Bild-Splitter</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: #0a0e1a; color: #e2e8f0; font-family: 'Courier New', monospace; padding: 24px; }
+    h1 { color: #22d3ee; margin-bottom: 8px; font-size: 20px; letter-spacing: 2px; }
+    p  { color: #64748b; margin-bottom: 24px; font-size: 13px; }
+
+    #dropzone {
+      border: 2px dashed rgba(6,182,212,0.4);
+      border-radius: 12px;
+      padding: 48px;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 0.2s;
+      margin-bottom: 32px;
+    }
+    #dropzone:hover, #dropzone.drag { border-color: #22d3ee; background: rgba(6,182,212,0.05); }
+    #dropzone span { font-size: 32px; display: block; margin-bottom: 12px; }
+    #dropzone p { margin: 0; color: #94a3b8; }
+    #fileInput { display: none; }
+
+    #grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+    }
+
+    .cell {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .cell canvas { width: 100%; display: block; }
+    .cell-info {
+      padding: 8px 10px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+    .cell-label { font-size: 11px; color: #22d3ee; letter-spacing: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .cell-name  { font-size: 10px; color: #64748b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .dl-btn {
+      background: rgba(6,182,212,0.15);
+      border: 1px solid rgba(6,182,212,0.3);
+      color: #22d3ee;
+      border-radius: 6px;
+      padding: 4px 10px;
+      font-size: 11px;
+      cursor: pointer;
+      white-space: nowrap;
+      font-family: inherit;
+      transition: background 0.15s;
+      flex-shrink: 0;
+    }
+    .dl-btn:hover { background: rgba(6,182,212,0.3); }
+
+    #dlAll {
+      display: none;
+      margin: 24px 0 8px;
+      background: linear-gradient(135deg, #0891b2, #7c3aed);
+      border: none;
+      color: #fff;
+      border-radius: 10px;
+      padding: 12px 32px;
+      font-size: 14px;
+      font-family: inherit;
+      letter-spacing: 2px;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+    #dlAll:hover { opacity: 0.85; }
+    #hint { display: none; font-size: 11px; color: #475569; margin-bottom: 24px; }
+  </style>
+</head>
+<body>
+  <h1>NOVA-7 — BILD-SPLITTER</h1>
+  <p>Lädt das 4×4 Raster-Bild und schneidet alle 16 Level-Bilder automatisch heraus.</p>
+
+  <div id="dropzone" onclick="document.getElementById('fileInput').click()">
+    <span>🖼️</span>
+    <p>Bild hier ablegen oder klicken zum Auswählen</p>
+    <input type="file" id="fileInput" accept="image/*">
+  </div>
+
+  <button id="dlAll">⬇ ALLE 16 HERUNTERLADEN</button>
+  <p id="hint">Tipp: Ordner auswählen wird vom Browser nicht immer unterstützt — einzeln herunterladen wenn nötig.</p>
+
+  <div id="grid"></div>
+
+  <script>
+    const LEVELS = [
+      { num: 1,  name: 'Medizinstation',          file: 'scene-l01.jpg' },
+      { num: 2,  name: 'Strahlungslabor',          file: 'scene-l02.jpg' },
+      { num: 3,  name: 'Erdbeobachtungs-Brücke',   file: 'scene-l03.jpg' },
+      { num: 4,  name: 'Ausrüstungsraum',           file: 'scene-l04.jpg' },
+      { num: 5,  name: 'Dekontaminationsschleuse',  file: 'scene-l05.jpg' },
+      { num: 6,  name: 'Detektor-Labor',            file: 'scene-l06.jpg' },
+      { num: 7,  name: 'Magnetkammer',              file: 'scene-l07.jpg' },
+      { num: 8,  name: 'Kernphysik-Labor',          file: 'scene-l08.jpg' },
+      { num: 9,  name: 'Nuklearmedizin-Suite',      file: 'scene-l09.jpg' },
+      { num: 10, name: 'Datenanalyse-Deck',         file: 'scene-l10.jpg' },
+      { num: 11, name: 'Nuklid-Kartenlabor',        file: 'scene-l11.jpg' },
+      { num: 12, name: 'Notfall-Kommandozentrale',  file: 'scene-l12.jpg' },
+      { num: 13, name: 'Triage-Station',            file: 'scene-l13.jpg' },
+      { num: 14, name: 'Fusionsreaktor-Ebene',      file: 'scene-l14.jpg' },
+      { num: 15, name: 'Abschirm-Ingenieurraum',    file: 'scene-l15.jpg' },
+      { num: 16, name: 'Rettungsdock',              file: 'scene-l16.jpg' },
+    ]
+
+    const canvases = []
+
+    function processImage(img) {
+      const cols = 4, rows = 4
+      const cw = Math.floor(img.naturalWidth  / cols)
+      const ch = Math.floor(img.naturalHeight / rows)
+      const grid = document.getElementById('grid')
+      grid.innerHTML = ''
+      canvases.length = 0
+
+      LEVELS.forEach((lvl, i) => {
+        const col = i % cols
+        const row = Math.floor(i / cols)
+
+        const canvas = document.createElement('canvas')
+        canvas.width  = cw
+        canvas.height = ch
+        const ctx = canvas.getContext('2d')
+        ctx.drawImage(img, col * cw, row * ch, cw, ch, 0, 0, cw, ch)
+        canvases.push({ canvas, lvl })
+
+        const cell = document.createElement('div')
+        cell.className = 'cell'
+
+        const info = document.createElement('div')
+        info.className = 'cell-info'
+
+        const labels = document.createElement('div')
+        labels.innerHTML = `<div class="cell-label">L${lvl.num} — ${lvl.name}</div>`
+
+        const btn = document.createElement('button')
+        btn.className = 'dl-btn'
+        btn.textContent = '⬇'
+        btn.title = `${lvl.file} herunterladen`
+        btn.onclick = () => download(canvas, lvl.file)
+
+        info.appendChild(labels)
+        info.appendChild(btn)
+        cell.appendChild(canvas)
+        cell.appendChild(info)
+        grid.appendChild(cell)
+      })
+
+      document.getElementById('dlAll').style.display = 'inline-block'
+      document.getElementById('hint').style.display = 'block'
+    }
+
+    function download(canvas, filename) {
+      const a = document.createElement('a')
+      a.href = canvas.toDataURL('image/jpeg', 0.92)
+      a.download = filename
+      a.click()
+    }
+
+    document.getElementById('dlAll').onclick = () => {
+      canvases.forEach(({ canvas, lvl }, i) => {
+        setTimeout(() => download(canvas, lvl.file), i * 120)
+      })
+    }
+
+    document.getElementById('fileInput').addEventListener('change', e => {
+      const file = e.target.files[0]
+      if (!file) return
+      const img = new Image()
+      img.onload = () => processImage(img)
+      img.src = URL.createObjectURL(file)
+    })
+
+    const dz = document.getElementById('dropzone')
+    dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('drag') })
+    dz.addEventListener('dragleave', () => dz.classList.remove('drag'))
+    dz.addEventListener('drop', e => {
+      e.preventDefault()
+      dz.classList.remove('drag')
+      const file = e.dataTransfer.files[0]
+      if (!file) return
+      const img = new Image()
+      img.onload = () => processImage(img)
+      img.src = URL.createObjectURL(file)
+    })
+  </script>
+</body>
+</html>
