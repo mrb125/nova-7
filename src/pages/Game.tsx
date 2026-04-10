@@ -15,6 +15,7 @@ import StoryScene from '../components/ui/StoryScene'
 import MiniGameHub from '../components/minigames/MiniGameHub'
 import Avatar from '../components/ui/Avatar'
 import type { TeamState } from '../types/game'
+import { GameContext } from '../contexts/GameContext'
 
 // Level components
 import Level01 from '../components/levels/Level01'
@@ -655,7 +656,9 @@ export default function Game() {
             exit={{ opacity: 0, x: -40 }}
             transition={{ duration: 0.3 }}
           >
-            <LevelComponent state={state} onComplete={handleLevelComplete} />
+            <GameContext.Provider value={{ state, completeLevel: handleLevelComplete, levelNumber, timeLeft }}>
+              <LevelComponent state={state} onComplete={handleLevelComplete} />
+            </GameContext.Provider>
           </motion.div>
         </AnimatePresence>
       </div>
