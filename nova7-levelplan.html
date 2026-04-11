@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nova-7 — Levelplan U.S.S. Blankenagel</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Exo+2:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: #02040a;
+  color: #e2e8f0;
+  font-family: 'Exo 2', sans-serif;
+  min-height: 100vh;
+  padding: 36px 28px 56px;
+}
+
+/* ── HEADER ── */
+.header { text-align: center; margin-bottom: 40px; }
+.header-eyebrow { font-family:'Orbitron',monospace; font-size:9px; letter-spacing:.4em; color:#22d3ee; margin-bottom:10px; }
+.header-title   { font-family:'Orbitron',monospace; font-size:28px; font-weight:900; color:#f1f5f9; letter-spacing:.1em; text-shadow:0 0 40px rgba(34,211,238,.35); }
+.header-sub     { font-size:12px; color:#475569; margin-top:8px; letter-spacing:.06em; }
+
+/* ── DIFFICULTY RAMP ── */
+.ramp { max-width:1140px; margin:0 auto 5px; display:flex; gap:3px; align-items:flex-end; height:18px; }
+.ramp-seg { flex:1; border-radius:2px; }
+.ramp-label { max-width:1140px; margin:4px auto 30px; display:flex; justify-content:space-between; }
+.ramp-label span { font-family:'Orbitron',monospace; font-size:7px; letter-spacing:.12em; color:#334155; }
+
+/* ── MAP ── */
+.map { max-width:960px; margin:0 auto; }
+
+/* ── ACT HEADER ── */
+.act-header { display:flex; align-items:center; gap:12px; margin-bottom:12px; margin-top:10px; }
+.act-tag    { font-family:'Orbitron',monospace; font-size:9px; letter-spacing:.2em; padding:5px 14px; border-radius:4px; white-space:nowrap; }
+.act-desc   { font-size:11px; color:#475569; font-style:italic; flex:1; }
+.act-line   { flex:1; height:1px; background:rgba(30,41,59,.6); }
+.act-range  { font-family:'Orbitron',monospace; font-size:8px; color:#1e293b; }
+
+.act-a1 { background:rgba(16,185,129,.12); color:#10b981; border:1px solid rgba(16,185,129,.3); }
+.act-a2 { background:rgba(6,182,212,.12);  color:#22d3ee; border:1px solid rgba(6,182,212,.3); }
+.act-a3 { background:rgba(99,102,241,.12); color:#818cf8; border:1px solid rgba(99,102,241,.3); }
+.act-a4 { background:rgba(245,158,11,.12); color:#f59e0b; border:1px solid rgba(245,158,11,.3); }
+.act-a5 { background:rgba(239,68,68,.12);  color:#f87171; border:1px solid rgba(239,68,68,.3); }
+
+/* ── ROW: 2 Karten nebeneinander ── */
+.row { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:14px; }
+.turn { font-family:'Orbitron',monospace; font-size:13px; color:#1e293b; margin:0 0 8px; padding:0 4px; }
+.turn-r { text-align:right; }
+.turn-l { text-align:left; }
+
+/* ── CARD ── */
+.card {
+  border-radius:10px; padding:16px 18px 14px;
+  position:relative; overflow:hidden;
+  display:flex; flex-direction:column; gap:8px;
+  transition:transform .16s, box-shadow .16s;
+  cursor:default;
+}
+.card:hover { transform:translateY(-2px); box-shadow:0 8px 24px rgba(0,0,0,.5); }
+.card::before { content:''; position:absolute; left:0; top:0; bottom:0; width:4px; border-radius:10px 0 0 10px; }
+
+.d1 { border:1px solid rgba(16,185,129,.4);  background:rgba(16,185,129,.04); } .d1::before { background:#10b981; }
+.d2 { border:1px solid rgba(6,182,212,.4);   background:rgba(6,182,212,.04);  } .d2::before { background:#22d3ee; }
+.d3 { border:1px solid rgba(99,102,241,.42); background:rgba(99,102,241,.04); } .d3::before { background:#6366f1; }
+.d4 { border:1px solid rgba(245,158,11,.42); background:rgba(245,158,11,.04); } .d4::before { background:#f59e0b; }
+.d5 { border:1px solid rgba(239,68,68,.42);  background:rgba(239,68,68,.04);  } .d5::before { background:#ef4444; }
+
+/* ── CARD HEADER ── */
+.card-head { display:flex; justify-content:space-between; align-items:flex-start; }
+.card-id   { font-family:'Orbitron',monospace; font-size:10px; color:#475569; letter-spacing:.1em; }
+.card-sector { font-family:'Orbitron',monospace; font-size:11px; font-weight:700; letter-spacing:.2em; margin-top:2px; }
+.d1 .card-sector { color:#10b981; } .d2 .card-sector { color:#22d3ee; }
+.d3 .card-sector { color:#818cf8; } .d4 .card-sector { color:#f59e0b; } .d5 .card-sector { color:#f87171; }
+
+.tag-new { font-family:'Orbitron',monospace; font-size:8px; letter-spacing:.1em; background:rgba(124,58,237,.2); color:#a78bfa; border:1px solid rgba(124,58,237,.45); border-radius:3px; padding:3px 8px; }
+.tag-alt { font-family:'Orbitron',monospace; font-size:8px; letter-spacing:.1em; background:rgba(30,41,59,.6);   color:#475569; border:1px solid rgba(51,65,85,.5);   border-radius:3px; padding:3px 8px; }
+
+/* ── TOPIC ── */
+.card-topic { font-size:15px; font-weight:700; color:#e2e8f0; line-height:1.2; }
+
+/* ── AURA QUOTE ── */
+.card-aura {
+  font-size:11px; color:#22d3ee; opacity:.65; font-style:italic;
+  line-height:1.45; padding-left:10px; border-left:2px solid rgba(34,211,238,.25);
+}
+
+/* ── PHASES ── */
+.phases { display:flex; flex-direction:column; gap:6px; }
+.phase  { display:flex; gap:8px; align-items:flex-start; }
+.phase-tag {
+  font-family:'Orbitron',monospace; font-size:7.5px; letter-spacing:.08em;
+  padding:3px 7px; border-radius:3px; white-space:nowrap; flex-shrink:0; margin-top:2px;
+  background:rgba(30,41,59,.8); color:#64748b; border:1px solid rgba(51,65,85,.5);
+}
+.phase-text { font-size:11.5px; color:#94a3b8; line-height:1.5; }
+.phase-text strong { color:#cbd5e1; font-weight:700; }
+
+/* ── FOOTER ── */
+.card-foot { display:flex; align-items:center; justify-content:space-between; margin-top:4px; padding-top:8px; border-top:1px solid rgba(51,65,85,.3); }
+.stars { font-size:10px; letter-spacing:2px; }
+.s-off { color:#1e293b; }
+.d1 .stars{color:#10b981;} .d2 .stars{color:#22d3ee;} .d3 .stars{color:#818cf8;} .d4 .stars{color:#f59e0b;} .d5 .stars{color:#ef4444;}
+.mech { font-family:'Orbitron',monospace; font-size:8px; letter-spacing:.1em; color:#475569; }
+.dur  { font-family:'Orbitron',monospace; font-size:8px; color:#334155; }
+.wp   { font-family:'Orbitron',monospace; font-size:8px; color:#f59e0b; }
+
+/* ── LEGEND & STATS ── */
+.legend {
+  max-width:1140px; margin:28px auto 0;
+  display:flex; gap:18px; align-items:center; flex-wrap:wrap;
+  padding:13px 18px; border:1px solid rgba(30,41,59,.7); border-radius:8px; background:rgba(6,15,35,.55);
+}
+.legend-title { font-family:'Orbitron',monospace; font-size:7.5px; color:#334155; letter-spacing:.2em; }
+.legend-item  { display:flex; align-items:center; gap:7px; font-size:10px; color:#64748b; }
+.l-dot        { width:9px; height:9px; border-radius:2px; flex-shrink:0; }
+
+.stats { max-width:1140px; margin:14px auto 0; display:flex; gap:10px; justify-content:center; flex-wrap:wrap; }
+.stat-pill { font-family:'Orbitron',monospace; font-size:8px; letter-spacing:.12em; padding:5px 14px; border-radius:20px; border:1px solid rgba(34,211,238,.18); color:#22d3ee; background:rgba(34,211,238,.04); }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-eyebrow">◈ MISSIONSBRIEFING · STATIONSKARTE ◈</div>
+  <div class="header-title">U.S.S. BLANKENAGEL — NOVA-7</div>
+  <div class="header-sub">20 Sektoren · Physik Radioaktivität · 4 neue Level · progressiv schwerer</div>
+</div>
+
+<!-- DIFFICULTY RAMP -->
+<div class="ramp">
+  <div class="ramp-seg" style="background:#10b981;height:28%;"></div>
+  <div class="ramp-seg" style="background:#10b981;height:33%;"></div>
+  <div class="ramp-seg" style="background:#10b981;height:37%;"></div>
+  <div class="ramp-seg" style="background:#10b981;height:41%;"></div>
+  <div class="ramp-seg" style="background:#22d3ee;height:47%;"></div>
+  <div class="ramp-seg" style="background:#22d3ee;height:51%;"></div>
+  <div class="ramp-seg" style="background:#22d3ee;height:55%;"></div>
+  <div class="ramp-seg" style="background:#22d3ee;height:59%;"></div>
+  <div class="ramp-seg" style="background:#6366f1;height:63%;"></div>
+  <div class="ramp-seg" style="background:#6366f1;height:66%;"></div>
+  <div class="ramp-seg" style="background:#6366f1;height:69%;"></div>
+  <div class="ramp-seg" style="background:#6366f1;height:72%;"></div>
+  <div class="ramp-seg" style="background:#f59e0b;height:75%;"></div>
+  <div class="ramp-seg" style="background:#f59e0b;height:78%;"></div>
+  <div class="ramp-seg" style="background:#f59e0b;height:81%;"></div>
+  <div class="ramp-seg" style="background:#f59e0b;height:84%;"></div>
+  <div class="ramp-seg" style="background:#ef4444;height:88%;"></div>
+  <div class="ramp-seg" style="background:#ef4444;height:92%;"></div>
+  <div class="ramp-seg" style="background:#ef4444;height:96%;"></div>
+  <div class="ramp-seg" style="background:#ef4444;height:100%;"></div>
+</div>
+<div class="ramp-label">
+  <span>★★ EINSTIEG</span><span>★★★ ANALYSE</span><span>★★★★ TRANSFER</span><span>★★★★ QUANTITATIV</span><span>★★★★★ SYNTHESIS</span>
+</div>
+
+<!-- ════════════════════════════════════════════════════════════ MAP -->
+<div class="map" style="max-width:960px;margin:0 auto;">
+
+<!-- ══════ ACT 1 ══════ -->
+<div class="act-header">
+  <span class="act-tag act-a1">ACT 1 — ALARM</span>
+  <span class="act-desc">07:42 Stationszeit · Strahlungsaustritt · erste Entscheidungen unter Druck</span>
+  <div class="act-line"></div><span class="act-range">L01–L04</span>
+</div>
+<div class="row">
+  <!-- L01 ALPHA -->
+  <div class="card d1">
+    <div class="card-head"><div><div class="card-id">L01</div><div class="card-sector">ALPHA</div></div><span class="tag-alt">ALT</span></div>
+    <div class="card-topic">Schutzausrüstung wählen</div>
+    <div class="card-aura">"Strahlungsaustritt bestätigt. Bitte Schutzausrüstung anfordern."</div>
+    <div class="phases">
+      <div class="phase"><span class="phase-tag">AUFGABE</span><span class="phase-text">Aus Notfall-Dispenser bis zu 6 Items wählen (Budget 120 Cr): T-Shirt, Anzug, Handschuhe, Atemschutz, Brille, Helm. <strong>Strahlenquelle: Am-241 (α)</strong></span></div>
+      <div class="phase"><span class="phase-tag">BEGRÜNDUNG</span><span class="phase-text">Freitext: Warum schützt deine Auswahl? Keywords: <em>intern, inhalieren, Filtermaske, Alpha-Reichweite</em></span></div>
+      <div class="phase"><span class="phase-tag">FEEDBACK</span><span class="phase-text">α außen harmlos, intern lebensgefährlich → Atemschutz zwingend nötig.</span></div>
+    </div>
+    <div class="card-foot"><span class="stars">★★<span class="s-off">★★★</span></span><span class="mech">AUSWAHL</span><span class="wp">max 20 WP</span><span class="dur">5 min</span></div>
+  </div>
+  <!-- L02 BETA -->
+  <div class="card d1">
+    <div class="card-head"><div><div class="card-id">L02</div><div class="card-sector">BETA</div></div><span class="tag-alt">ALT</span></div>
+    <div class="card-topic">Abschirmung α / β / γ</div>
+    <div class="card-aura">"Abschirmboxen offen. Ziehe das richtige Material auf jede Probe."</div>
+    <div class="phases">
+      <div class="phase"><span class="phase-tag">AUFGABE</span><span class="phase-text">Drag & Drop: 3 Quellen (Am-241 α · Sr-90 β · Co-60 γ) → 5 Materialien (Papier · Alu · Stahl · Blei · Wasser)</span></div>
+      <div class="phase"><span class="phase-tag">BEGRÜNDUNG</span><span class="phase-text">Warum blockiert Papier α, aber nicht γ? Keywords: <em>Ionisierung, Reichweite, Eindringtiefe, Photon</em></span></div>
+      <div class="phase"><span class="phase-tag">FEEDBACK</span><span class="phase-text">α→Papier · β→Alu · γ→Blei. Jede korrekte Zuordnung +3 WP, Fehler +5 mSv.</span></div>
+    </div>
+    <div class="card-foot"><span class="stars">★★<span class="s-off">★★★</span></span><span class="mech">DRAG & DROP</span><span class="wp">max 20 WP</span><span class="dur">4 min</span></div>
+  </div>
+</div>
+<div class="row">
+  <!-- L03 GAMMA -->
+  <div class="card d1">
+    <div class="card-head"><div><div class="card-id">L03</div><div class="card-sector">GAMMA</div></div><span class="tag-alt">ALT</span></div>
+    <div class="card-topic">Natürliche Strahlung einordnen</div>
+    <div class="card-aura">"Nicht alles kommt vom Unfall. Sortiere die 5 Dosisquellen."</div>
+    <div class="phases">
+      <div class="phase"><span class="phase-tag">AUFGABE</span><span class="phase-text">Rangfolge klicken (1 = größte Dosis): <strong>Radon 1,1 mSv · Terrestrisch 0,4 · Kosmisch 0,3 · Nahrung 0,25 · Kerntechnik 0,02</strong></span></div>
+      <div class="phase"><span class="phase-tag">BEGRÜNDUNG</span><span class="phase-text">Warum ist Radon die größte natürliche Quelle? Keywords: <em>Zerfallskette, Uran, Gestein, α-Strahlung, Lunge</em></span></div>
+      <div class="phase"><span class="phase-tag">FEEDBACK</span><span class="phase-text">Jährliche Gesamtdosis Deutschland: ca. 2,1 mSv. Kerntechnik: 0,02 mSv — vernachlässigbar.</span></div>
+    </div>
+    <div class="card-foot"><span class="stars">★★<span class="s-off">★★★</span></span><span class="mech">SORTIEREN</span><span class="wp">max 20 WP</span><span class="dur">5 min</span></div>
+  </div>
+  <!-- L04 DELTA -->
+  <div class="card d1">
+    <div class="card-head"><div><div class="card-id">L04</div><div class="card-sector">DELTA</div></div><span class="tag-alt">ALT</span></div>
+    <div class="card-topic">Kontamination ≠ Bestrahlung</div>
+    <div class="card-aura">"Sektor DELTA kontaminiert. Kein Zutritt ohne Atemschutz."</div>
+    <div class="phases">
+      <div class="phase"><span class="phase-tag">AUFGABE</span><span class="phase-text">4 Szenarien zuordnen: <em>kontaminiert</em> oder <em>bestrahlt</em>? — Iod in Schilddrüse · Röntgen · Cs-137 auf Haut · γ-Quelle im Raum</span></div>
+      <div class="phase"><span class="phase-tag">AUFGABE 2</span><span class="phase-text">Multiple Choice: Welche Schutzmaßnahme bei Kontamination? Duschen / Bleiabschirmung / Abstand / Atemschutz</span></div>
+      <div class="phase"><span class="phase-tag">BEGRÜNDUNG</span><span class="phase-text">Keywords: <em>intern, extern, Quelle entfernen, Ablagerung, Dosimeter</em></span></div>
+    </div>
+    <div class="card-foot"><span class="stars">★★<span class="s-off">★★★</span></span><span class="mech">KONZEPT</span><span class="wp">max 20 WP</span><span class="dur">5 min</span></div>
+  </div>
+</div><!-- /act1 rows -->
+<div class="turn turn-r">↓</div>
+
+<!-- ══════ ACT 2 ══════ -->
+<div class="act-header">
+  <span class="act-tag act-a2">ACT 2 — ERKUNDUNG</span>
+  <span class="act-desc">Station erkunden · Zerfallsketten · erste Berechnungen · Detektorbau</span>
+  <div class="act-line"></div><span class="act-range">L05–L08</span>
+</div>
+<div class="row">
+  <!-- L05 EPSILON -->
+  <div class="card d2">
+    <div class="card-head"><div><div class="card-id">L05</div><div class="card-sector">EPSILON</div></div><span class="tag-alt">ALT</span></div>
+    <div class="card-topic">Detektor selbst bauen</div>
+    <div class="card-aura">"Alle Sensoren ausgefallen. Baue einen Geiger-Müller-Zähler aus Ersatzteilen."</div>
+    <div class="phases">
+      <div class="phase"><span class="phase-tag">AUFGABE 1</span><span class="phase-text">Bauplan Drag & Drop: Zählrohr → Kathode/Anode → Zählgas → Hochspannung → Zähler</span></div>
+      <div class="phase"><span class="phase-tag">AUFGABE 2</span><span class="phase-text">Multiple Choice: Was löst einen Zählimpuls aus? (a) Wärme (b) <strong>Ionisierung des Zählgases</strong> (c) Magnetfeld (d) Photodetektion</span></div>
+      <div class="phase"><span class="phase-tag">BEGRÜNDUNG</span><span class="phase-text">Keywords: <em>Ionisation, Lawineneffekt, Impuls, Ansprechvermögen, γ-Nachweis indirekt</em></span></div>
+    </div>
+    <div class="card-foot"><span class="stars">★★★<span class="s-off">★★</span></span><span class="mech">KONSTRUKTION</span><span class="wp">max 20 WP</span><span class="dur">6 min</span></div>
+  </div>
+  <!-- L06 ZETA — NEU -->
+  <div class="card d2">
+    <div class="card-head"><div><div class="card-id">L06</div><div class="card-sector">ZETA</div></div><span class="tag-new">NEU ★</span></div>
+    <div class="card-topic">Radon — Zerfallskette</div>
+    <div class="card-aura">"Belüftungskanal ZETA-7: 800 Bq/m³. Kein Geruch, kein Leuchten — und trotzdem tödlich."</div>
+    <div class="phases">
+      <div class="phase"><span class="phase-tag">AUFGABE 1</span><span class="phase-text">Drag & Drop: U-238 → Ra-226 → <strong>Rn-222</strong> → Po-218 → Pb-214 → Bi-214 → Po-214 → Pb-206. α/β zuordnen.</span></div>
+      <div class="phase"><span class="phase-tag">AUFGABE 2</span><span class="phase-text">Berechnung: 800 Bq/m³ × 120 m³ = <strong>96.000 Zerfälle/s</strong>. WHO-Grenzwert 300 Bq/m³ → Modul nicht bewohnbar.</span></div>
+      <div class="phase"><span class="phase-tag">BEGRÜNDUNG</span><span class="phase-text">Warum ist Po-218/Po-214, nicht Rn-222 selbst die Gefahr? Keywords: <em>Folgeprodukte, Lunge, α intern, Edelgas</em></span></div>
+    </div>
+    <div class="card-foot"><span class="stars">★★★<span class="s-off">★★</span></span><span class="mech">KETTE + RECHNUNG</span><span class="wp">max 20 WP</span><span class="dur">6 min</span></div>
+  </div>
+</div>
+<div class="row">
+  <!-- L07 ETA -->
+  <div class="card d2">
+    <div class="card-head"><div><div class="card-id">L07</div><div class="card-sector">ETA</div></div><span class="tag-alt">ALT</span></div>
+    <div class="card-topic">Nuklidkarte</div>
+    <div class="card-aura">"Isotop-Datenbank beschädigt. Klassifiziere die 5 Isotope manuell."</div>
+    <div class="phases">
+      <div class="phase"><span class="phase-tag">AUFGABE 1</span><span class="phase-text">5 Isotope (C-12, C-14, U-235, U-238, Tc-99m) → stabil / α-Strahler / β-Strahler / γ-Strahler</span></div>
+      <div class="phase"><span class="phase-tag">AUFGABE 2</span><span class="phase-text">Kerngleichung: ²³⁸U → ²³⁴Th + <strong>⁴He (α)</strong>. Protonenzahl, Massenzahl, Strahlungsart bestimmen.</span></div>
+      <div class="phase"><span class="phase-tag">BEGRÜNDUNG</span><span class="phase-text">Keywords: <em>Ordnungszahl Z, Massenzahl A, Neutronenzahl N, Tochternuklid, stabil</em></span></div>
+    </div>
+    <div class="card-foot"><span class="stars">★★★<span class="s-off">★★</span></span><span class="mech">KLASSIFIKATION</span><span class="wp">max 20 WP</span><span class="dur">5 min</span></div>
+  </div>
+  <!-- L08 THETA — NEU -->
+  <div class="card d2">
+    <div class="card-head"><div><div class="card-id">L08</div><div class="card-sector">THETA</div></div><span class="tag-new">NEU ★</span></div>
+    <div class="card-topic">Fukushima — I-131 vs. Cs-137</div>
+    <div class="card-aura">"Archivdaten 2011 geladen. Welche Zonen tage-, welche jahrzehntelang gesperrt?"</div>
+    <div class="phases">
+      <div class="phase"><span class="phase-tag">AUFGABE 1</span><span class="phase-text">Graph: Aktivität vs. Zeit. Slider: <strong>Ab wann &lt; 1% ?</strong> — I-131 (T½ 8 d): ~53 Tage · Cs-137 (T½ 30 a): ~200 Jahre</span></div>
+      <div class="phase"><span class="phase-tag">AUFGABE 2</span><span class="phase-text">Cs-137-Freisetzung 2011: 15 PBq. Aktivität 2026? <strong>A = 15 · (½)^(15/30) ≈ 10,6 PBq</strong></span></div>
+      <div class="phase"><span class="phase-tag">BEGRÜNDUNG</span><span class="phase-text">Warum ist Cs-137 trotz niedrigerer Anfangsmenge langfristig gefährlicher? Keywords: <em>Halbwertszeit, Bodenkontamination, biologische Aufnahme</em></span></div>
+    </div>
+    <div class="card-foot"><span class="stars">★★★<span class="s-off">★★</span></span><span class="mech">GRAPH + RECHNUNG</span><span class="wp">max 20 WP</span><span class="dur">6 min</span></div>
+  </div>
+</div><!-- /act2 rows -->
+<div class="turn turn-l">↓</div>
+
+<!-- ══════ ACT 3 ══════ -->
+<div class="act-header">
+  <span class="act-tag act-a3">ACT 3 — ANALYSE</span>
+  <span class="act-desc">Physik verstehen · Transfer in reale Kontexte · Medizin · Halbwertszeit quantitativ</span>
+  <div class="act-line"></div><span class="act-range">L09–L12</span>
+</div>
+<div class="row">
+  <!-- L09 IOTA -->
+  <div class="card d3">
+    <div class="card-head"><div><div class="card-id">L09</div><div class="card-sector">IOTA</div></div><span class="tag-alt">ALT</span></div>
+    <div class="card-topic">Nuklearmedizin</div>
+    <div class="card-aura">"Krankenbucht: 4 Behandlungsfälle. Weise jedem das richtige Isotop zu."</div>
+    <div class="phases">
+      <div class="phase"><span class="phase-tag">AUFGABE 1</span><span class="phase-text">Zuordnung: Tc-99m (γ, T½ 6 h) · I-131 (β/γ, T½ 8 d) · Ga-68 (β⁺, T½ 68 min) · Ra-223 (α, T½ 11 d) → Knochenszintigrafie · Schilddrüsentherapie · PET Tumor · Knochenmetastasen</span></div>
+      <div class="phase"><span class="phase-tag">AUFGABE 2</span><span class="phase-text">MC: Warum muss T½ des Diagnostik-Isotops <strong>kurz</strong> sein? → minimale Strahlendosis für den Patienten</span></div>
+      <div class="phase"><span class="phase-tag">BEGRÜNDUNG</span><span class="phase-text">Keywords: <em>Zerfallsart, biologische Halbwertszeit, effektive HWZ, Gewebeziel</em></span></div>
+    </div>
+    <div class="card-foot"><span class="stars">★★★<span class="s-off">★★</span></span><span class="mech">ZUORDNUNG</span><span class="wp">max 20 WP</span><span class="dur">6 min</span></div>
+  </div>
+  <!-- L10 KAPPA — NEU -->
+  <div class="card d3">
+    <div class="card-head"><div><div class="card-id">L10</div><div class="card-sector">KAPPA</div></div><span class="tag-new">NEU ★</span></div>
+    <div class="card-topic">PET-Scan — Fluor-18-Logistik</div>
+    <div class="card-aura">"Zyklotron produziert 08:00 Uhr. T½ = 110 min. Der Zeitplan ist Physik."</div>
+    <div class="phases">
+      <div class="phase"><span class="phase-tag">AUFGABE 1</span><span class="phase-text">A₀ = 800 MBq (08:00), Injektion 10:30. Aktivität bei Injektion? t = 150 min = 1,37·T½ → <strong>A ≈ 387 MBq</strong></span></div>
+      <div class="phase"><span class="phase-tag">AUFGABE 2</span><span class="phase-text">Ab wann &lt; 1 MBq? Slider: t = T½ · log₂(800) ≈ <strong>990 min ≈ 16,5 h</strong> nach Produktion</span></div>
+      <div class="phase"><span class="phase-tag">BEGRÜNDUNG</span><span class="phase-text">β⁺ + e⁻ → 2 × 511 keV. Warum 511 keV? <strong>E = mₑ · c²</strong>. Keywords: <em>Positron, Paarvernichtung, PET-Koinzidenz</em></span></div>
+    </div>
+    <div class="card-foot"><span class="stars">★★★★<span class="s-off">★</span></span><span class="mech">BERECHNUNG</span><span class="wp">max 20 WP</span><span class="dur">7 min</span></div>
+  </div>
+</div>
+<div class="row">
+  <!-- L11 LAMBDA -->
+  <div class="card d3">
+    <div class="card-head"><div><div class="card-id">L11</div><div class="card-sector">LAMBDA</div></div><span class="tag-alt">ALT</span></div>
+    <div class="card-topic">HWZ aus Messkurve bestimmen</div>
+    <div class="card-aura">"Geiger-Daten aus Sektor PI. Wann ist der Korridor wieder begehbar?"</div>
+    <div class="phases">
+      <div class="phase"><span class="phase-tag">AUFGABE 1</span><span class="phase-text">Graph (Imp/min vs. Zeit, 9 Messpunkte). Slider: <strong>T½ ablesen</strong> (Toleranz ±8 min). Untergrundstrahlung subtrahieren.</span></div>
+      <div class="phase"><span class="phase-tag">AUFGABE 2</span><span class="phase-text">Eingabe: N(180 min) = ? · Wann sind noch 25 % übrig? Beides rechnerisch und graphisch.</span></div>
+      <div class="phase"><span class="phase-tag">FEHLVORSTELLUNG</span><span class="phase-text">Erhitzen → kürzere HWZ? → <strong>Nein</strong>. Keywords: <em>Exponentialfunktion, Untergrund, statistische Schwankung</em></span></div>
+    </div>
+    <div class="card-foot"><span class="stars">★★★★<span class="s-off">★</span></span><span class="mech">GRAPH + SLIDER</span><span class="wp">max 20 WP</span><span class="dur">6 min</span></div>
+  </div>
+  <!-- L12 MU -->
+  <div class="card d3">
+    <div class="card-head"><div><div class="card-id">L12</div><div class="card-sector">MU</div></div><span class="tag-alt">ALT</span></div>
+    <div class="card-topic">Zerfallsgesetz N(t)</div>
+    <div class="card-aura">"Korridor RHO: 4× über Sicherheitswert. Wann darf das Team einrücken?"</div>
+    <div class="phases">
+      <div class="phase"><span class="phase-tag">AUFGABE 1</span><span class="phase-text">N(t) = N₀ · (½)^(t/T½). A₀ = 4 × Grenzwert, T½ = 60 min. <strong>Wann gilt A = Grenzwert?</strong> → t = 2 · T½ = <strong>120 min</strong></span></div>
+      <div class="phase"><span class="phase-tag">AUFGABE 2</span><span class="phase-text">Umstellen: t = T½/ln2 · ln(N₀/N). Ba-137m (T½ = 2,55 min): Wie viele HWZ bis &lt;1%? → n = log₂(100) ≈ <strong>7 HWZ</strong></span></div>
+      <div class="phase"><span class="phase-tag">FEHLVORSTELLUNG</span><span class="phase-text">MC: "Nach 2 HWZ ist alles zerfallen." → <strong>Falsch</strong>: (½)ⁿ niemals exakt null.</span></div>
+    </div>
+    <div class="card-foot"><span class="stars">★★★★<span class="s-off">★</span></span><span class="mech">FORMEL ANWENDEN</span><span class="wp">max 20 WP</span><span class="dur">7 min</span></div>
+  </div>
+</div><!-- /act3 rows -->
+<div class="turn turn-r">↓</div>
+
+<!-- ══════ ACT 4 ══════ -->
+<div class="act-header">
+  <span class="act-tag act-a4">ACT 4 — BERECHNUNG</span>
+  <span class="act-desc">Mehrstufige Transferaufgaben · reale Messwerte · Systemdenken · Raumfahrt</span>
+  <div class="act-line"></div><span class="act-range">L13–L16</span>
+</div>
+<div class="row">
+  <!-- L13 NU -->
+  <div class="card d4">
+    <div class="card-head"><div><div class="card-id">L13</div><div class="card-sector">NU</div></div><span class="tag-alt">ALT</span></div>
+    <div class="card-topic">Lebensmittelkontamination</div>
+    <div class="card-aura">"Lebensmittelversorgung teilweise kontaminiert. Welche zwei Produkte meidest du?"</div>
+    <div class="phases">
+      <div class="phase"><span class="phase-tag">AUFGABE 1</span><span class="phase-text">Tabelle: 5 Produkte mit Cs-137-Werten in Bq/kg. EU-Grenzwert: 600 Bq/kg. Welche 2 überschreiten den Grenzwert?</span></div>
+      <div class="phase"><span class="phase-tag">AUFGABE 2</span><span class="phase-text">Effektive HWZ: 1/T_eff = 1/T_phys + 1/T_bio. Cs-137: T_phys = 30 a, T_bio = 70 d → <strong>T_eff ≈ 69 Tage</strong></span></div>
+      <div class="phase"><span class="phase-tag">BEGRÜNDUNG</span><span class="phase-text">Keywords: <em>effektive Halbwertszeit, biologische Elimination, Grenzwert, Risikoabwägung</em></span></div>
+    </div>
+    <div class="card-foot"><span class="stars">★★★★<span class="s-off">★</span></span><span class="mech">GRENZWERT + HWZ</span><span class="wp">max 20 WP</span><span class="dur">7 min</span></div>
+  </div>
+  <!-- L14 XI — NEU -->
+  <div class="card d4">
+    <div class="card-head"><div><div class="card-id">L14</div><div class="card-sector">XI</div></div><span class="tag-new">NEU ★</span></div>
+    <div class="card-topic">Voyager-RTG — Pu-238</div>
+    <div class="card-aura">"Notsignal NOVA-1, gestartet 1977. Noch genug Energie für Kontaktaufnahme?"</div>
+    <div class="phases">
+      <div class="phase"><span class="phase-tag">AUFGABE 1</span><span class="phase-text">Pu-238: T½ = 87,7 a. Start: 470 W (1977). <strong>Leistung 2026?</strong> P = 470 · (½)^(49/87,7) ≈ <strong>319 W</strong></span></div>
+      <div class="phase"><span class="phase-tag">AUFGABE 2</span><span class="phase-text">Graph P(t). Slider: <strong>Wann noch 50 % Leistung?</strong> → 1977 + 87,7 ≈ 2065. Welche 2 von 5 Instrumenten zuerst abschalten?</span></div>
+      <div class="phase"><span class="phase-tag">SYSTEMDENKEN</span><span class="phase-text">α-Zerfall → Wärme → Strom (Seebeck-Effekt). Keywords: <em>RTG, Energiewandlung, Raumfahrt, Pu-238</em></span></div>
+    </div>
+    <div class="card-foot"><span class="stars">★★★★★</span><span class="mech">TRANSFER + SYSTEM</span><span class="wp">max 20 WP</span><span class="dur">7 min</span></div>
+  </div>
+</div>
+<div class="row">
+  <!-- L15 OMIKRON -->
+  <div class="card d4">
+    <div class="card-head"><div><div class="card-id">L15</div><div class="card-sector">OMIKRON</div></div><span class="tag-alt">ALT</span></div>
+    <div class="card-topic">C-14-Datierung</div>
+    <div class="card-aura">"Unbekannte organische Fracht aus dem Asteroidengürtel. C-14-Scanner bereit."</div>
+    <div class="phases">
+      <div class="phase"><span class="phase-tag">AUFGABE 1</span><span class="phase-text">Probe: 92 % normale C-14-Konzentration. T½ = 5730 a. <strong>Alter:</strong> t = −(T½/ln2) · ln(0,92) ≈ <strong>680 Jahre</strong></span></div>
+      <div class="phase"><span class="phase-tag">AUFGABE 2</span><span class="phase-text">3 Laborwerte: 646 ± 31 · 750 ± 30 · 676 ± 24 Jahre BP. Welcher weicht signifikant ab? Mittelwert + Unsicherheit berechnen.</span></div>
+      <div class="phase"><span class="phase-tag">BEGRÜNDUNG</span><span class="phase-text">Keywords: <em>Isotopenverhältnis, C-14-Konstanz Atmosphäre, Fehlerbereich, Kalibrierung</em></span></div>
+    </div>
+    <div class="card-foot"><span class="stars">★★★★<span class="s-off">★</span></span><span class="mech">RECHNUNG + FEHLER</span><span class="wp">max 20 WP</span><span class="dur">7 min</span></div>
+  </div>
+  <!-- L16 PI -->
+  <div class="card d4">
+    <div class="card-head"><div><div class="card-id">L16</div><div class="card-sector">PI</div></div><span class="tag-alt">ALT</span></div>
+    <div class="card-topic">Abstandsgesetz</div>
+    <div class="card-aura">"Reaktorkern: 3 Sv/h direkt daran. Berechne deinen sicheren Mindestabstand."</div>
+    <div class="phases">
+      <div class="phase"><span class="phase-tag">AUFGABE 1</span><span class="phase-text">Ḣ₁ · r₁² = Ḣ₂ · r₂². Ḣ₁ = 3 Sv/h bei r₁ = 0,5 m. <strong>Welcher Abstand für Ḣ₂ = 0,02 Sv/h?</strong> → r₂ ≈ <strong>6,1 m</strong></span></div>
+      <div class="phase"><span class="phase-tag">AUFGABE 2</span><span class="phase-text">15-Minuten-Einsatz, max. Dosis 5 mSv. Erlaubte Dosisleistung: Ḣ = 5 mSv / 0,25 h = <strong>20 mSv/h</strong> ✓</span></div>
+      <div class="phase"><span class="phase-tag">BEGRÜNDUNG</span><span class="phase-text">Keywords: <em>Abstandsgesetz, Dosisleistung, ALARA, Zeit · Abstand · Abschirmung</em></span></div>
+    </div>
+    <div class="card-foot"><span class="stars">★★★★<span class="s-off">★</span></span><span class="mech">1/r²-GESETZ</span><span class="wp">max 20 WP</span><span class="dur">7 min</span></div>
+  </div>
+</div><!-- /act4 rows -->
+<div class="turn turn-l">↓</div>
+
+<!-- ══════ ACT 5 ══════ -->
+<div class="act-header">
+  <span class="act-tag act-a5">ACT 5 — KRISE &amp; FINALE</span>
+  <span class="act-desc">Crew stirbt · Reaktor überkritisch · Dr. Kern · letzte Schleuse · Evakuierung</span>
+  <div class="act-line"></div><span class="act-range">L17–L20</span>
+</div>
+<div class="row">
+  <!-- L17 RHO -->
+  <div class="card d5">
+    <div class="card-head"><div><div class="card-id">L17</div><div class="card-sector">RHO</div></div><span class="tag-alt">ALT</span></div>
+    <div class="card-topic">Akutes Strahlensyndrom — Triage</div>
+    <div class="card-aura">"4 Crew-Mitglieder mit kritischen Dosimeterwerten. Weise jedem die richtige Maßnahme zu."</div>
+    <div class="phases">
+      <div class="phase"><span class="phase-tag">AUFGABE</span><span class="phase-text">4 Crew: 0,4 Sv · 1,8 Sv · 4,5 Sv · 8,2 Sv → Maßnahmen: <em>Beobachtung · stationär · Knochenmark-TX · palliativ</em>. Grenzwerte: &lt;1 leicht / 1–2 mittel / 2–6 schwer / &gt;6 kritisch</span></div>
+      <div class="phase"><span class="phase-tag">MC</span><span class="phase-text">Ab welcher Dosis setzt das hämatopoetische Syndrom ein? → <strong>~1 Sv</strong></span></div>
+      <div class="phase"><span class="phase-tag">BEGRÜNDUNG</span><span class="phase-text">Keywords: <em>LD50, Knochenmark, deterministische Wirkung, Latenzzeit, stochastisch</em></span></div>
+    </div>
+    <div class="card-foot"><span class="stars">★★★★★</span><span class="mech">TRIAGE</span><span class="wp">max 20 WP</span><span class="dur">7 min</span></div>
+  </div>
+  <!-- L18 SIGMA -->
+  <div class="card d5">
+    <div class="card-head"><div><div class="card-id">L18</div><div class="card-sector">SIGMA</div></div><span class="tag-alt">ALT</span></div>
+    <div class="card-topic">Kernspaltung &amp; Kettenreaktion</div>
+    <div class="card-aura">"Reaktor instabil! Verstehe die Kettenreaktion — du hast 6 Minuten."</div>
+    <div class="phases">
+      <div class="phase"><span class="phase-tag">AUFGABE 1</span><span class="phase-text">Gleichung: ²³⁵U + n → ¹⁴¹Ba + ⁹²Kr + <strong>3n</strong> + 200 MeV. k-Faktor Slider positionieren: unterkritisch · kritisch · überkritisch</span></div>
+      <div class="phase"><span class="phase-tag">AUFGABE 2</span><span class="phase-text">Nach 10 Generationen bei k = 3: <strong>3¹⁰ = 59.049 Neutronen</strong>. Energie gesamt: 59.049 × 200 MeV = ?</span></div>
+      <div class="phase"><span class="phase-tag">SIMULATION</span><span class="phase-text">Steuerstäbe einschieben bis k = 1. Neutronenabsorption durch Bor/Hafnium erklären.</span></div>
+    </div>
+    <div class="card-foot"><span class="stars">★★★★★</span><span class="mech">SIMULATION</span><span class="wp">max 20 WP</span><span class="dur">8 min</span></div>
+  </div>
+</div>
+<div class="row">
+  <!-- L19 TAU -->
+  <div class="card d5">
+    <div class="card-head"><div><div class="card-id">L19</div><div class="card-sector">TAU</div></div><span class="tag-alt">ALT</span></div>
+    <div class="card-topic">Atomkraftwerk &amp; Endlager</div>
+    <div class="card-aura">"Reaktor-Abschaltprotokoll eingeleitet. Aber — wohin mit dem Abfall?"</div>
+    <div class="phases">
+      <div class="phase"><span class="phase-tag">AUFGABE 1</span><span class="phase-text">Reaktorkomponenten zuordnen: Brennstäbe · Moderator · Steuerstäbe · Kühlmittel · Druckbehälter → Funktion</span></div>
+      <div class="phase"><span class="phase-tag">AUFGABE 2</span><span class="phase-text">Endlager: Cs-137 (T½ 30 a) → &lt;1%: <strong>t = 7 · T½ = 210 a</strong>. Pu-239 (T½ 24.100 a) → <strong>t ≈ 169.000 a</strong></span></div>
+      <div class="phase"><span class="phase-tag">URTEIL</span><span class="phase-text">Vorteile (kein CO₂, Grundlast) vs. Risiken (Abfall, Unfall, Proliferation). Eigene Position begründen.</span></div>
+    </div>
+    <div class="card-foot"><span class="stars">★★★★★</span><span class="mech">SYSTEM + URTEIL</span><span class="wp">max 20 WP</span><span class="dur">8 min</span></div>
+  </div>
+  <!-- L20 YPSILON -->
+  <div class="card d5" style="border-color:rgba(34,211,238,.5);background:rgba(34,211,238,.04);">
+    <div style="position:absolute;inset:0;border-radius:10px;box-shadow:0 0 24px rgba(34,211,238,.07);pointer-events:none;"></div>
+    <div class="card-head"><div><div class="card-id" style="color:#22d3ee;">L20</div><div class="card-sector" style="color:#22d3ee;">YPSILON</div></div><span class="tag-alt">ALT</span></div>
+    <div class="card-topic">Äquivalentdosis &amp; Flucht</div>
+    <div class="card-aura">"Letzte Sicherheitsprüfung. Dr. Kern winkt durch das Glas."</div>
+    <div class="phases">
+      <div class="phase"><span class="phase-tag">AUFGABE 1</span><span class="phase-text">Bq → Gy → Sv. Wichtungsfaktoren: α = 20, β/γ = 1. Rechnung: <strong>0,05 Gy α = 1 Sv</strong></span></div>
+      <div class="phase"><span class="phase-tag">AUFGABE 2</span><span class="phase-text">Imp/min innen vs. außen vergleichen, Aktivität berechnen: Ist die Schleuse sicher zu öffnen?</span></div>
+      <div class="phase"><span class="phase-tag">SYNTHESIS</span><span class="phase-text">Abschluss-MC: Welche 3 der 8 Überlebensfaktoren waren entscheidend? Begründe mit Physik aus den 20 Leveln.</span></div>
+    </div>
+    <div class="card-foot">
+      <span class="stars" style="color:#22d3ee;">★★★★★</span>
+      <span class="mech" style="color:#22d3ee;opacity:.6;">SYNTHESIS · ZIEL</span>
+      <span class="wp">max 20 WP</span><span class="dur">8 min</span>
+    </div>
+  </div>
+</div><!-- /act5 rows -->
+</div><!-- /map -->
+
+<!-- STATS -->
+<div class="stats">
+  <div class="stat-pill">20 SEKTOREN</div>
+  <div class="stat-pill">16 BESTEHEND · 4 NEU</div>
+  <div class="stat-pill">SNAKE-PFAD ALPHA → YPSILON</div>
+  <div class="stat-pill">∑ max 400 WP</div>
+  <div class="stat-pill">∑ ca. 130 MINUTEN</div>
+</div>
+
+<!-- LEGEND -->
+<div class="legend">
+  <span class="legend-title">LEGENDE</span>
+  <div class="legend-item"><div class="l-dot" style="background:#10b981;"></div>★★ Erkennen &amp; Einordnen (Act 1)</div>
+  <div class="legend-item"><div class="l-dot" style="background:#22d3ee;"></div>★★★ Analyse &amp; erste Berechnung (Act 2)</div>
+  <div class="legend-item"><div class="l-dot" style="background:#6366f1;"></div>★★★★ Transfer in Kontext (Act 3)</div>
+  <div class="legend-item"><div class="l-dot" style="background:#f59e0b;"></div>★★★★ Quantitativ &amp; mehrstufig (Act 4)</div>
+  <div class="legend-item"><div class="l-dot" style="background:#ef4444;"></div>★★★★★ Synthesis &amp; Entscheidung (Act 5)</div>
+  <div class="legend-item" style="margin-left:auto;"><div class="l-dot" style="background:#7c3aed;border:1px solid #a78bfa;"></div><span style="color:#a78bfa;">NEU ★</span></div>
+  <div class="legend-item"><div class="l-dot" style="background:#334155;border:1px solid #475569;"></div><span>ALT</span></div>
+</div>
+
+</body>
+</html>
