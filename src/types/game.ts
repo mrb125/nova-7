@@ -45,6 +45,7 @@ export interface TeamState {
   levelResults: LevelResult[]
   startedAt: number
   avatarConfig?: AvatarConfig
+  hintsUsed?: Record<number, number[]>  // levelNumber → array of used hint indices
 }
 
 export interface LevelResult {

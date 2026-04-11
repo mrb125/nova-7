@@ -7,7 +7,7 @@ import PhaseIndicator from '../ui/PhaseIndicator'
 
 const FOODS = [
   { id: 'paranuts', name: 'Paranüsse', icon: '🥜', radioactivity: 'sehr hoch', bqkg: '~1000 Bq/kg', danger: true },
-  { id: 'wildfleisch', name: 'Wildfleisch', icon: '🦌', radioactivity: 'hoch', bqkg: '~600 Bq/kg*', danger: true },
+  { id: 'synth_protein', name: 'Synth-Protein', icon: '🧪', radioactivity: 'hoch', bqkg: '~580 Bq/kg*', danger: true },
   { id: 'mushrooms', name: 'Pilze', icon: '🍄', radioactivity: 'mittel', bqkg: '~200 Bq/kg', danger: false },
   { id: 'fish', name: 'Fisch', icon: '🐟', radioactivity: 'mittel', bqkg: '~60 Bq/kg', danger: false },
   { id: 'bananas', name: 'Bananen', icon: '🍌', radioactivity: 'gering', bqkg: '~130 Bq/kg', danger: false },
@@ -16,7 +16,7 @@ const FOODS = [
   { id: 'honey', name: 'Honig', icon: '🍯', radioactivity: 'sehr gering', bqkg: '~15 Bq/kg', danger: false },
 ]
 
-const MC_AVOID = ['paranuts', 'wildfleisch']
+const MC_AVOID = ['paranuts', 'synth_protein']
 const KEYWORDS = ['intern', 'direkte nähe', 'alpha intern', 'ungehindert', 'gewebe', 'kein abstand', 'schutzkleidung', 'inhalation', 'kontamination']
 
 export default function Level09({ state, onComplete }: LevelProps) {
@@ -63,7 +63,7 @@ export default function Level09({ state, onComplete }: LevelProps) {
         </div>
         <FeedbackCard
           title="Auswertung: Radioaktive Lebensmittel"
-          text="Paranüsse haben den höchsten natürlichen Radiumgehalt (Ra-226, ein Alpha-Strahler, ~1000 Bq/kg). Wildfleisch kann durch Cs-137-Fallout (z.B. Tschernobyl) kontaminiert sein. Intern aufgenommene Alpha-Strahlung ist besonders gefährlich, da keine Körperschicht sie abschirmt."
+          text="Paranüsse haben den höchsten natürlichen Radiumgehalt (Ra-226, ein Alpha-Strahler, ~1000 Bq/kg). Synth-Protein kann durch Cs-137 aus dem Hydroponik-Kühlkreislauf kontaminiert sein (Reaktorleck 2149). Intern aufgenommene Alpha-Strahlung ist besonders gefährlich, da keine Körperschicht sie abschirmt."
           wpEarned={wpResult}
           dosimeterDelta={dosResult}
           variant={variant}
@@ -130,7 +130,7 @@ export default function Level09({ state, onComplete }: LevelProps) {
               )
             })}
           </div>
-          <div className="text-xs text-slate-500 mb-3">* Cs-137-Kontamination nach Nuklearunfällen (z.B. Tschernobyl 1986)</div>
+          <div className="text-xs text-slate-500 mb-3">* Cs-137-Kontamination durch verseuchtes Hydroponik-Kühlwasser (Reaktorleck Sektor 7, 2149)</div>
           <button onClick={() => setPhase('justify')} disabled={avoid.size < 2}
             className="w-full py-3 rounded-lg hud-font text-sm tracking-wider font-bold disabled:opacity-30 cursor-pointer transition-all"
             style={{ background: avoid.size >= 2 ? 'linear-gradient(135deg, #065f46, #0891b2)' : '#1e293b', border: '1px solid rgba(16,185,129,0.3)' }}>

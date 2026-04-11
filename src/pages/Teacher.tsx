@@ -5,6 +5,7 @@ import { getCharacter } from '../lib/characters'
 import {
   getAllTeamStates, getTeamUnlockedLevel, setTeamUnlockedLevel,
   pushGameEvent, getGameEvents, clearGameEvents, broadcastChange,
+  getGlobalTimer, setGlobalTimer, clearGlobalTimer,
   type GameEvent,
 } from '../lib/gameState'
 import type { TeamState, LevelResult } from '../types/game'
@@ -552,6 +553,96 @@ function JustificationCard({
 }
 
 // ---------------------------------------------------------------------------
+// Global Timer Panel
+// ---------------------------------------------------------------------------
+
+function GlobalTimerPanel() {
+  const [minutes, setMinutes] = useState(10)
+  const [remaining, setRemaining] = useState<number | null>(null)
+
+  useEffect(() => {
+    function update() {
+      const t = getGlobalTimer()
+      if (!t || !t.active) { setRemaining(null); return }
+      const secs = Math.max(0, Math.round((t.endsAt - Date.now()) / 1000))
+      setRemaining(secs > 0 ? secs : null)
+    }
+    update()
+    const id = setInterval(update, 1000)
+    return () => clearInterval(id)
+  }, [])
+
+  function start() {
+    setGlobalTimer({ endsAt: Date.now() + minutes * 60000, label: 'Bearbeitungszeit', active: true })
+    broadcastChange('timelimits')
+    setRemaining(minutes * 60)
+  }
+
+  function stop() {
+    clearGlobalTimer()
+    broadcastChange('timelimits')
+    setRemaining(null)
+  }
+
+  const mins = remaining !== null ? Math.floor(remaining / 60) : 0
+  const secs = remaining !== null ? remaining % 60 : 0
+  const isUrgent = remaining !== null && remaining < 120
+
+  return (
+    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.09 }} className="mb-8">
+      <h2 className="hud-font text-lg text-white flex items-center gap-2 mb-4">
+        <span style={{ color: '#22d3ee' }}>⏰</span> GLOBALER TIMER (LEHRERUHR)
+      </h2>
+      <div className="glass-panel p-4 flex items-center gap-4 flex-wrap">
+        {remaining !== null ? (
+          <div
+            className="hud-font text-2xl font-bold px-4 py-2 rounded-lg"
+            style={{
+              background: isUrgent ? 'rgba(239,68,68,0.15)' : 'rgba(245,158,11,0.1)',
+              border: `1px solid ${isUrgent ? 'rgba(239,68,68,0.4)' : 'rgba(245,158,11,0.3)'}`,
+              color: isUrgent ? '#ef4444' : '#f59e0b',
+            }}
+          >
+            {mins}:{String(secs).padStart(2, '0')}
+          </div>
+        ) : (
+          <div className="text-slate-500 hud-font text-sm">Kein Timer aktiv</div>
+        )}
+
+        <div className="flex items-center gap-2">
+          <label className="text-xs text-slate-400 hud-font">MINUTEN:</label>
+          <input
+            type="number"
+            min={1}
+            max={120}
+            value={minutes}
+            onChange={e => setMinutes(Math.max(1, Math.min(120, parseInt(e.target.value) || 1)))}
+            className="w-16 bg-slate-900/60 border border-slate-600/50 rounded px-2 py-1 text-white text-sm hud-font focus:outline-none focus:border-cyan-400 text-center"
+          />
+        </div>
+
+        <button
+          onClick={start}
+          className="px-4 py-2 rounded-lg hud-font text-xs font-bold tracking-wider cursor-pointer transition-all hover:brightness-110"
+          style={{ background: 'rgba(245,158,11,0.15)', border: '1px solid rgba(245,158,11,0.4)', color: '#fbbf24' }}
+        >
+          ▶ START
+        </button>
+        {remaining !== null && (
+          <button
+            onClick={stop}
+            className="px-4 py-2 rounded-lg hud-font text-xs font-bold tracking-wider cursor-pointer transition-all hover:brightness-110"
+            style={{ background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.3)', color: '#f87171' }}
+          >
+            ■ STOP
+          </button>
+        )}
+      </div>
+    </motion.div>
+  )
+}
+
+// ---------------------------------------------------------------------------
 // Events Panel
 // ---------------------------------------------------------------------------
 
@@ -975,6 +1066,9 @@ function Dashboard() {
           />
         </div>
       </motion.div>
+
+      {/* Global Timer Panel */}
+      <GlobalTimerPanel />
 
       {/* Events Panel */}
       <EventsPanel onTriggered={refresh} />

@@ -277,6 +277,29 @@ export function markEventSeen(teamName: string, eventId: string) {
   }
 }
 
+// ---------------------------------------------------------------------------
+// Global Timer (Lehreruhr)
+// ---------------------------------------------------------------------------
+
+const GLOBAL_TIMER_KEY = 'nova7_globaltimer'
+
+export interface GlobalTimer {
+  endsAt: number
+  label: string
+  active: boolean
+}
+
+export function getGlobalTimer(): GlobalTimer | null {
+  try { return JSON.parse(localStorage.getItem(GLOBAL_TIMER_KEY) ?? 'null') }
+  catch { return null }
+}
+export function setGlobalTimer(timer: GlobalTimer): void {
+  localStorage.setItem(GLOBAL_TIMER_KEY, JSON.stringify(timer))
+}
+export function clearGlobalTimer(): void {
+  localStorage.removeItem(GLOBAL_TIMER_KEY)
+}
+
 export function applyEventToTeam(teamName: string, dosimeterDelta: number, wpDelta: number) {
   try {
     const all = getAllTeamStates()

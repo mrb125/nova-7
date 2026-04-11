@@ -8,6 +8,27 @@ const SECTORS = [
   'RHO', 'SIGMA', 'TAU', 'YPSILON',
 ]
 
+const ACT_MAP: Record<number, { name: string; stars: number; range: [number, number] }> = {
+  1: { name: 'EINSTIEG',    stars: 2, range: [1,  4]  },
+  2: { name: 'ANALYSE',     stars: 3, range: [5,  8]  },
+  3: { name: 'TRANSFER',    stars: 4, range: [9,  12] },
+  4: { name: 'QUANTITATIV', stars: 4, range: [13, 16] },
+  5: { name: 'SYNTHESE',    stars: 5, range: [17, 20] },
+}
+
+const LEVEL_TOPICS: Record<number, string> = {
+  1: 'Strahlungsarten',        2: 'Halbwertszeit',
+  3: 'Hintergrundstrahlung',   4: 'Kernzerfall',
+  5: 'Bestrahlungsschutz',     6: 'Detektoren',
+  7: 'Zerfallsreihen',         8: 'Fukushima-Sim',
+  9: 'Nuklidkarte',            10: 'Nuklearmedizin',
+  11: 'Dosimetrie',            12: 'PET-Logistik',
+  13: 'C-14 Datierung',        14: 'Halbwertszeit II',
+  15: 'Strahlenkrankheit',     16: 'Inverse Quadrat',
+  17: 'Akutes Strahlensyndrom', 18: 'Kernspaltung',
+  19: 'Atommüll/Entsorgung',   20: 'Finaler Ausbruch',
+}
+
 interface Props {
   /** state.currentLevel — 0 = nothing done, 20 = all done */
   currentLevel: number
@@ -36,6 +57,12 @@ export default function StationMap({ currentLevel }: Props) {
     cells.slice(16, 20),
   ]
 
+  const currentActNum = Object.entries(ACT_MAP).find(
+    ([, a]) => (currentLevel + 1) >= a.range[0] && (currentLevel + 1) <= a.range[1]
+  )?.[0]
+  const currentAct = currentActNum ? ACT_MAP[Number(currentActNum)] : null
+  const completedActs = Object.values(ACT_MAP).filter(a => currentLevel >= a.range[1]).length
+
   return (
     <div className="w-full">
       {/* Header */}
@@ -44,9 +71,16 @@ export default function StationMap({ currentLevel }: Props) {
         <span className="hud-font tracking-widest text-[10px]" style={{ color: '#22d3ee' }}>
           STATIONSKARTE — U.S.S. BLANKENAGEL
         </span>
-        <span className="hud-font text-[10px] text-slate-600 ml-auto">
-          {currentLevel}/20 SEKTOREN
-        </span>
+        <div className="ml-auto flex flex-col items-end gap-0.5">
+          <span className="hud-font text-[10px] text-slate-400">
+            {currentLevel}/20 SEKTOREN
+          </span>
+          {currentAct && (
+            <span className="hud-font text-[9px]" style={{ color: '#f59e0b' }}>
+              AKT {completedActs + 1}/5 — {currentAct.name} {'★'.repeat(currentAct.stars)}{'☆'.repeat(5 - currentAct.stars)}
+            </span>
+          )}
+        </div>
       </div>
 
       <div className="flex flex-col gap-1.5">
@@ -61,7 +95,7 @@ export default function StationMap({ currentLevel }: Props) {
                 {display.map(cell => (
                   <motion.div
                     key={cell.lvl}
-                    className="flex-1 relative overflow-hidden rounded-md"
+                    className="flex-1 relative overflow-hidden rounded-md group/cell"
                     style={{
                       aspectRatio: '1.9',
                       border: cell.isCurrent
@@ -110,18 +144,32 @@ export default function StationMap({ currentLevel }: Props) {
 
                       {/* Bottom: sector + status */}
                       <div>
-                        <div
-                          className="hud-font font-bold truncate leading-none mb-0.5"
-                          style={{
-                            fontSize: '7.5px',
-                            color: cell.isCurrent
-                              ? '#22d3ee'
-                              : cell.isCompleted
-                              ? '#10b981'
-                              : '#334155',
-                          }}
-                        >
-                          {cell.sector}
+                        <div className="relative">
+                          <div
+                            className="hud-font font-bold truncate leading-none mb-0.5"
+                            style={{
+                              fontSize: '7.5px',
+                              color: cell.isCurrent
+                                ? '#22d3ee'
+                                : cell.isCompleted
+                                ? '#10b981'
+                                : '#334155',
+                            }}
+                          >
+                            {cell.sector}
+                          </div>
+                          {!cell.isLocked && (
+                            <div
+                              className="absolute bottom-full left-0 mb-1 px-1.5 py-0.5 rounded text-[7px] whitespace-nowrap pointer-events-none opacity-0 group-hover/cell:opacity-100 transition-opacity z-20"
+                              style={{
+                                background: 'rgba(2,10,28,0.95)',
+                                border: '1px solid rgba(6,182,212,0.3)',
+                                color: '#94a3b8',
+                              }}
+                            >
+                              {LEVEL_TOPICS[cell.lvl]}
+                            </div>
+                          )}
                         </div>
 
                         {cell.isCompleted && (
@@ -147,17 +195,39 @@ export default function StationMap({ currentLevel }: Props) {
 
               {/* Turn arrow between rows */}
               {rowIdx < 4 && (
-                <div
-                  className="hud-font text-slate-700"
-                  style={{
-                    fontSize: 10,
-                    position: 'absolute',
-                    bottom: -10,
-                    [reversed ? 'left' : 'right']: 2,
-                    lineHeight: 1,
-                  }}
-                >
-                  ↓
+                <div className="relative">
+                  <div
+                    className="hud-font text-slate-700"
+                    style={{
+                      fontSize: 10,
+                      position: 'absolute',
+                      bottom: -10,
+                      [reversed ? 'left' : 'right']: 2,
+                      lineHeight: 1,
+                    }}
+                  >
+                    ↓
+                  </div>
+                  {(() => {
+                    const nextActNum = rowIdx + 2
+                    const nextAct = ACT_MAP[nextActNum]
+                    if (!nextAct) return null
+                    return (
+                      <div
+                        className="hud-font text-[7px] tracking-widest"
+                        style={{
+                          position: 'absolute',
+                          bottom: -10,
+                          left: '50%',
+                          transform: 'translateX(-50%)',
+                          color: 'rgba(124,58,237,0.6)',
+                          whiteSpace: 'nowrap',
+                        }}
+                      >
+                        AKT {nextActNum}: {nextAct.name}
+                      </div>
+                    )
+                  })()}
                 </div>
               )}
             </div>

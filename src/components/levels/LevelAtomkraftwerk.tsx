@@ -29,7 +29,7 @@ const CALC_TASKS = [
   },
 ]
 
-const KEYWORDS = ['brennstab', 'moderator', 'steuerstab', 'k\u00fchlmittel', 'endlager', 'spaltprodukt', 'halbwertszeit', 'plutonium', 'c\u00e4sium', 'neutron']
+const KEYWORDS = ['brennstab', 'moderator', 'steuerstab', 'k\u00fchlmittel', 'entsorgungsstation', 'spaltprodukt', 'halbwertszeit', 'plutonium', 'c\u00e4sium', 'neutron']
 
 export default function LevelAtomkraftwerk({ state: _s, onComplete }: LevelProps) {
   const [selections, setSelections] = useState<Record<string, string>>(
@@ -79,11 +79,11 @@ export default function LevelAtomkraftwerk({ state: _s, onComplete }: LevelProps
       <div className="space-y-4">
         <div className="glass-panel p-5">
           <h3 className="hud-font text-cyan-400 text-sm mb-2">SEKTOR MU \u2014 ABGESCHLOSSEN</h3>
-          <p className="text-slate-300 text-sm">Reaktor-Abschaltprotokoll abgeschlossen. Endlagerzeiten berechnet.</p>
+          <p className="text-slate-300 text-sm">Reaktor-Abschaltprotokoll abgeschlossen. Interstellare Entsorgungszeiten berechnet.</p>
         </div>
         <FeedbackCard
-          title="Auswertung: Kernkraftwerk & Endlagerung"
-          text="Reaktor: Brennstab (U-235, spaltbar), Moderator (Wasser, bremst Neutronen auf thermische Geschwindigkeit), Steuerstab (Cadmium/Bor, absorbiert Neutronen \u2192 k-Faktor regulieren), K\u00fchlmittel (Wasser, transportiert W\u00e4rme zum Turbinengenerator). Endlagerung: Cs-137 (T\u00bd = 30 a) braucht 7 \u00d7 30 = 210 Jahre bis unter 1%. Pu-239 (T\u00bd = 24.110 a) braucht 7 \u00d7 24.110 \u2248 169.000 Jahre. Diese enormen Zeitr\u00e4ume sind die zentrale Herausforderung der Endlagerung."
+          title="Auswertung: Kernkraftwerk & Interstellare Entsorgung"
+          text="Reaktor: Brennstab (U-235, spaltbar), Moderator (Wasser, bremst Neutronen auf thermische Geschwindigkeit), Steuerstab (Cadmium/Bor, absorbiert Neutronen \u2192 k-Faktor regulieren), K\u00fchlmittel (Wasser, transportiert W\u00e4rme zum Turbinengenerator). Interstellare Entsorgung: Cs-137 (T\u00bd = 30 a) braucht 7 \u00d7 30 = 210 Jahre bis unter 1%. Pu-239 (T\u00bd = 24.110 a) braucht 7 \u00d7 24.110 \u2248 169.000 Jahre. Diese enormen Zeitr\u00e4ume zeigen, warum interstellare Entsorgung langfristige Abschirmung erfordert."
           wpEarned={wpResult}
           dosimeterDelta={dosResult}
           variant={variant}
@@ -102,7 +102,7 @@ export default function LevelAtomkraftwerk({ state: _s, onComplete }: LevelProps
 
   return (
     <div className="space-y-4">
-      <PhaseIndicator steps={['Komponenten', 'Endlagerung']} current={phase === 'choose' ? 0 : 1} />
+      <PhaseIndicator steps={['Komponenten', 'Interstellare Entsorgung']} current={phase === 'choose' ? 0 : 1} />
       <div className="glass-panel p-5">
         {/* Reactor cross-section diagram */}
         <svg viewBox="0 0 600 160" className="w-full h-36 mb-4 rounded-lg" style={{ background: 'linear-gradient(135deg, #020617, #0c1445)' }}>
@@ -147,7 +147,7 @@ export default function LevelAtomkraftwerk({ state: _s, onComplete }: LevelProps
           </text>
         </svg>
         <p className="text-slate-300 text-sm">
-          <strong className="text-cyan-400">Sektor MU.</strong> AURA: &bdquo;Reaktor-Abschaltprotokoll. Identifiziere die Komponenten und berechne die Endlagerzeit.&ldquo;
+          <strong className="text-cyan-400">Sektor MU.</strong> AURA: &bdquo;Reaktor-Abschaltprotokoll. Identifiziere die Komponenten und berechne die Wartezeit bis zur interstellaren Entsorgung.&ldquo;
         </p>
       </div>
 
@@ -204,11 +204,10 @@ export default function LevelAtomkraftwerk({ state: _s, onComplete }: LevelProps
             style={{ background: 'rgba(234,179,8,0.08)', border: '1px solid rgba(234,179,8,0.25)' }}>
             <div className="text-xs hud-font text-yellow-400 mb-1">HINTERGRUND</div>
             <div className="text-sm text-slate-300">
-              Radioaktiver Abfall enth&auml;lt verschiedene Isotope mit unterschiedlichen Halbwertszeiten.
-              F&uuml;r sichere Endlagerung muss die Aktivit&auml;t auf unter 1% fallen.
+              Radioaktiver Abfall wird zur interstellaren Entsorgungsstation verschickt. Bis zum Transport muss die Aktivit&auml;t unter 1% fallen &mdash; berechne die Wartezeit.
             </div>
           </div>
-          <h3 className="hud-font text-sm text-white">ENDLAGERZEIT BERECHNEN</h3>
+          <h3 className="hud-font text-sm text-white">WARTEZEIT BIS INTERSTELLARE ENTSORGUNG BERECHNEN</h3>
           {CALC_TASKS.map((task, i) => (
             <div key={task.id} className="rounded-lg p-4" style={{ background: 'rgba(15,23,42,0.6)', border: '1px solid rgba(100,116,139,0.3)' }}>
               <div className="text-xs hud-font text-cyan-400 mb-1">AUFGABE {i + 1}</div>
@@ -232,7 +231,7 @@ export default function LevelAtomkraftwerk({ state: _s, onComplete }: LevelProps
 
       {phase === 'justify' && (
         <JustificationField
-          question="Erkl\u00e4re die Funktion der Reaktorkomponenten und warum die Endlagerung radioaktiven Abfalls eine Herausforderung ist."
+          question="Erkl\u00e4re die Funktion der Reaktorkomponenten und warum die interstellare Entsorgung radioaktiven Abfalls eine Herausforderung ist."
           keywords={KEYWORDS}
           onSubmit={handleJustification}
         />

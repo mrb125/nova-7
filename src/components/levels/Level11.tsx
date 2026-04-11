@@ -18,7 +18,7 @@ const ROOMS = [
     id: 'office',
     name: 'Büro-Sektion',
     icon: '🪟',
-    description: 'Erdgeschoss-Äquivalent, intakte Panoramafenster zur Erde',
+    description: 'Innen-Sektion (Ebene 1), intakte Panoramafenster zum Weltraum',
     correct: false,
     dos: 5,
   },
@@ -108,7 +108,7 @@ export default function Level11({ state, onComplete }: LevelProps) {
           ))}
           {/* Labels */}
           <text x="300" y="42" textAnchor="middle" fill="#06b6d4" fontSize="8">Aussichts-Deck (Fenster)</text>
-          <text x="300" y="80" textAnchor="middle" fill="#64748b" fontSize="8">Büro-Sektion (Panorama)</text>
+          <text x="300" y="80" textAnchor="middle" fill="#64748b" fontSize="8">Büro-Sektion (Innen-Sektion, Ebene 1)</text>
           <text x="300" y="130" textAnchor="middle" fill="#065f46" fontSize="8">Keller-Sektion (Massivbeton)</text>
           {/* Radiation arrows from outside */}
           {[0, 1, 2].map(i => (

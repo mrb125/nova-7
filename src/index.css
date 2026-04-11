@@ -2,7 +2,7 @@
 @import "tailwindcss";
 
 :root {
-  --space-bg: #02040a;
+  --space-bg: #060d1a;
   --panel-bg: rgba(6, 15, 35, 0.85);
   --border-glow: rgba(6, 182, 212, 0.3);
   --cyan: #06b6d4;
@@ -46,11 +46,11 @@ body::before {
   background: var(--panel-bg);
   border: 1px solid var(--border-glow);
   border-radius: 12px;
-  backdrop-filter: blur(12px);
+  backdrop-filter: blur(20px);
   box-shadow: 0 0 20px rgba(6, 182, 212, 0.1), inset 0 1px 0 rgba(255,255,255,0.05);
 }
 
-.hud-font { font-family: 'Orbitron', sans-serif; }
+.hud-font { font-family: 'Orbitron', sans-serif; letter-spacing: 0.08em; }
 
 .glow-cyan { box-shadow: 0 0 15px rgba(6, 182, 212, 0.4); }
 .glow-text-cyan { text-shadow: 0 0 10px rgba(6, 182, 212, 0.6); }

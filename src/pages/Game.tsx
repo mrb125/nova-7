@@ -10,12 +10,15 @@ import {
 import { getCharacter } from '../lib/characters'
 import { checkAchievements, ACHIEVEMENTS, type Achievement } from '../lib/achievements'
 import StatBar from '../components/ui/StatBar'
+import FullscreenButton from '../components/ui/FullscreenButton'
+import GlobalTimerBadge from '../components/ui/GlobalTimerBadge'
 import StationMap from '../components/ui/StationMap'
 import StoryScene from '../components/ui/StoryScene'
 import MiniGameHub from '../components/minigames/MiniGameHub'
 import Avatar from '../components/ui/Avatar'
 import type { TeamState } from '../types/game'
 import { GameContext } from '../contexts/GameContext'
+import { requestNotificationPermission, showEventNotification } from '../lib/push'
 
 // Level components
 import Level01 from '../components/levels/Level01'
@@ -128,7 +131,7 @@ function WaitingScreen({ state, nextLevel }: { state: TeamState; nextLevel: numb
           SEKTOR {SECTOR_NAMES[nextLevel - 1]} GESPERRT
         </h2>
         <p className="text-slate-400 text-sm mb-6">
-          AURA: „Die Schleuse zu Sektor {SECTOR_NAMES[nextLevel - 1]} ist verriegelt.
+          AURA: „Team {state.teamName}, die Schleuse zu Sektor {SECTOR_NAMES[nextLevel - 1]} ist verriegelt.
           Warte auf Freigabe durch die Missionszentrale{dots}"
         </p>
 
@@ -313,7 +316,7 @@ function AchievementToast({ achievement, onClose }: { achievement: Achievement; 
 // Timed-Out Overlay
 // ---------------------------------------------------------------------------
 
-function TimedOutOverlay() {
+function TimedOutOverlay({ teamName }: { teamName: string }) {
   const [countdown, setCountdown] = useState(4)
 
   useEffect(() => {
@@ -339,7 +342,7 @@ function TimedOutOverlay() {
         <div className="text-5xl mb-4">⏰</div>
         <h2 className="hud-font text-2xl font-black text-red-400 mb-2 tracking-wider">ZEITLIMIT!</h2>
         <p className="text-slate-400 text-sm mb-4">
-          AURA: „Zeitlimit überschritten. Zwangsevakuierung des Sektors eingeleitet."
+          AURA: „Team {teamName}, Zeitlimit überschritten. Zwangsevakuierung des Sektors eingeleitet."
         </p>
         <div className="rounded-xl p-3 mb-5" style={{ background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.25)' }}>
           <div className="text-red-400 hud-font text-sm font-bold">⚠ +10 mSv Strahlungsstrafe</div>
@@ -463,6 +466,14 @@ export default function Game() {
   const [activeEvent, setActiveEvent] = useState<GameEvent | null>(null)
   const [toastAchievements, setToastAchievements] = useState<Achievement[]>([])
   const prevUnlockedRef = useRef(false)
+  const timeLimitRef = useRef<number>(300)
+
+  // Request notification permission once
+  useEffect(() => {
+    if (localStorage.getItem('nova7_notif_asked')) return
+    localStorage.setItem('nova7_notif_asked', '1')
+    requestNotificationPermission()
+  }, [])
 
   // Play unlock beep when teacher grants access (false → true)
   useEffect(() => {
@@ -512,6 +523,7 @@ export default function Game() {
       }
       // Show the most recent event as notification + acoustic alert
       setActiveEvent(fresh[fresh.length - 1])
+      showEventNotification(fresh[fresh.length - 1])
       playBeep('event')
       // Re-read updated state
       const updated = loadState()
@@ -530,6 +542,7 @@ export default function Game() {
     let limit = getEffectiveTimeLimit(levelNumber)
     // Leon bonus: +60s on his levels
     if (state.characterId === 'leon' && [11, 12, 13, 16, 20].includes(levelNumber)) limit += 60
+    timeLimitRef.current = limit
     setTimeLeft(limit)
     setTimerActive(true)
   }, [state?.currentLevel, isUnlocked])
@@ -541,7 +554,8 @@ export default function Game() {
       setTimedOut(true)
       return
     }
-    if (timeLeft === 30) playBeep('warning')
+    const warningThreshold = Math.round(timeLimitRef.current * 0.25)
+    if (timeLeft === warningThreshold) playBeep('warning')
     if (timeLeft <= 10 && timeLeft > 0) playBeep('tick')
     const id = setTimeout(() => setTimeLeft(t => (t ?? 1) - 1), 1000)
     return () => clearTimeout(id)
@@ -653,19 +667,22 @@ export default function Game() {
   return (
     <div className="relative min-h-screen z-10">
       {/* Timed-out overlay */}
-      <AnimatePresence>{timedOut && <TimedOutOverlay />}</AnimatePresence>
+      <AnimatePresence>{timedOut && <TimedOutOverlay teamName={state.teamName} />}</AnimatePresence>
 
       {/* Event notification overlay */}
       {notifOverlay}
 
       {/* Header */}
-      <div className="sticky top-0 z-20 p-3">
+      <div className="sticky top-0 z-20 p-3 relative">
         <StatBar
           state={state}
           levelNumber={levelNumber}
           timeLeft={timerActive ? timeLeft : null}
           timeLimitSeconds={timeLimitForLevel}
         />
+        <div className="absolute top-2 right-2">
+          <FullscreenButton />
+        </div>
       </div>
 
       {/* Sector header */}
@@ -691,6 +708,11 @@ export default function Game() {
 
       {/* Level content */}
       <div className="px-4 pb-12 max-w-3xl mx-auto">
+        {/* Global timer badge */}
+        <div className="flex justify-center mb-2">
+          <GlobalTimerBadge />
+        </div>
+
         {/* Story scene illustration */}
         <StoryScene levelNumber={levelNumber} />
 

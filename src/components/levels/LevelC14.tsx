@@ -81,11 +81,11 @@ export default function LevelC14({ state: _s, onComplete }: LevelProps) {
       <div className="space-y-4">
         <div className="glass-panel p-5">
           <h3 className="hud-font text-cyan-400 text-sm mb-2">SEKTOR LAMBDA — ABGESCHLOSSEN</h3>
-          <p className="text-slate-300 text-sm">{correct}/3 Berechnungen korrekt. Artefakt-Alter bestimmt.</p>
+          <p className="text-slate-300 text-sm">{correct}/3 Berechnungen korrekt. Alter der Gewebeprobe bestimmt.</p>
         </div>
         <FeedbackCard
           title="Auswertung: Radiokarbon-Datierung"
-          text="A/A₀ = 0,25 = (½)² → n = 2 Halbwertszeiten. Alter: t = 2 × 5730 = 11.460 Jahre. Die C-14-Methode funktioniert bis ca. 50.000 Jahre (≈ 8–10 T½), danach ist zu wenig C-14 für eine zuverlässige Messung vorhanden. Voraussetzung: Die Probe muss organischen Ursprungs sein (Holz, Knochen, Textil). Anorganische Materialien enthalten kein C-14."
+          text="A/A₀ = 0,25 = (½)² → n = 2 Halbwertszeiten. Alter: t = 2 × 5730 = 11.460 Jahre. Die C-14-Methode funktioniert bis ca. 50.000 Jahre (≈ 8–10 T½), danach ist zu wenig C-14 für eine zuverlässige Messung vorhanden. Voraussetzung: Die Probe muss organischen Ursprungs sein (Holz, Knochen, Textil, biologisches Gewebe). Anorganische Materialien enthalten kein C-14."
           wpEarned={wpResult}
           dosimeterDelta={dosResult}
           variant={variant}
@@ -108,7 +108,7 @@ export default function LevelC14({ state: _s, onComplete }: LevelProps) {
         <PhaseIndicator steps={['Messung', 'Berechnung']} current={0} />
         <div className="glass-panel p-5">
           <p className="text-slate-300 text-sm">
-            <strong className="text-cyan-400">Sektor LAMBDA.</strong> AURA: „Unbekanntes organisches Artefakt in der Ladebucht. C-14-Scanner bereit — bestimme das Alter."
+            <strong className="text-cyan-400">Sektor LAMBDA.</strong> AURA: „Biologische Gewebeprobe aus der Luftschleuse — Sektor C. Probenalter unbekannt. C-14-Scanner bereit — bestimme das Alter."
           </p>
         </div>
 
@@ -125,8 +125,8 @@ export default function LevelC14({ state: _s, onComplete }: LevelProps) {
 
             {/* Artifact silhouette */}
             <ellipse cx="180" cy="100" rx="80" ry="50" fill="#1e293b" stroke="#334155" strokeWidth="1" />
-            <text x="180" y="95" textAnchor="middle" fill="#475569" fontSize="10" fontFamily="monospace">ARTEFAKT</text>
-            <text x="180" y="110" textAnchor="middle" fill="#334155" fontSize="8" fontFamily="monospace">(organisch)</text>
+            <text x="180" y="95" textAnchor="middle" fill="#475569" fontSize="10" fontFamily="monospace">GEWEBEPROBE</text>
+            <text x="180" y="110" textAnchor="middle" fill="#334155" fontSize="8" fontFamily="monospace">(Luftschleuse)</text>
 
             {/* Scan lines */}
             {[...Array(5)].map((_, i) => (
@@ -177,7 +177,7 @@ export default function LevelC14({ state: _s, onComplete }: LevelProps) {
       <PhaseIndicator steps={['Messung', 'Berechnung']} current={1} />
       <div className="glass-panel p-5">
         <p className="text-slate-300 text-sm">
-          <strong className="text-cyan-400">Sektor LAMBDA.</strong> Messwert: A/A₀ = 0,25 | T½ = 5730 Jahre. Berechne das Alter des Artefakts.
+          <strong className="text-cyan-400">Sektor LAMBDA.</strong> Messwert: A/A₀ = 0,25 | T½ = 5730 Jahre. Berechne das Alter der Gewebeprobe.
         </p>
       </div>
 
