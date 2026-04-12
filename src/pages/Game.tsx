@@ -13,6 +13,7 @@ import StatBar from '../components/ui/StatBar'
 import FullscreenButton from '../components/ui/FullscreenButton'
 import GlobalTimerBadge from '../components/ui/GlobalTimerBadge'
 import StationMap from '../components/ui/StationMap'
+import ShipMap from '../components/ui/ShipMap'
 import StoryScene from '../components/ui/StoryScene'
 import MiniGameHub from '../components/minigames/MiniGameHub'
 import Avatar from '../components/ui/Avatar'
@@ -467,6 +468,7 @@ export default function Game() {
   const [toastAchievements, setToastAchievements] = useState<Achievement[]>([])
   const prevUnlockedRef = useRef(false)
   const timeLimitRef = useRef<number>(300)
+  const [mapOpen, setMapOpen] = useState(false)
 
   // Request notification permission once
   useEffect(() => {
@@ -664,38 +666,25 @@ export default function Game() {
 
   const LevelComponent = LEVELS[state.currentLevel]
 
+  const timeColor = timeLeft != null && timeLeft <= 30 ? '#ef4444' : timeLeft != null && timeLeft <= 60 ? '#f59e0b' : '#22d3ee'
+  const fmtTime = (t: number | null) => t == null ? '--:--' : `${Math.floor(t / 60)}:${String(t % 60).padStart(2, '0')}`
+
   return (
-    <div className="relative min-h-screen z-10">
+    <div className="relative h-screen overflow-hidden z-10 flex flex-col">
       {/* Timed-out overlay */}
       <AnimatePresence>{timedOut && <TimedOutOverlay teamName={state.teamName} />}</AnimatePresence>
 
       {/* Event notification overlay */}
       {notifOverlay}
 
-      {/* Header */}
-      <div className="sticky top-0 z-20 p-3 relative">
-        <StatBar
-          state={state}
-          levelNumber={levelNumber}
-          timeLeft={timerActive ? timeLeft : null}
-          timeLimitSeconds={timeLimitForLevel}
-        />
-        <div className="absolute top-2 right-2">
-          <FullscreenButton />
-        </div>
-      </div>
-
-      {/* Sector header */}
-      <div className="px-4 py-3 text-center">
+      {/* ── TOP HUD ── */}
+      <div className="flex-shrink-0 flex items-center gap-4 px-5 py-2.5 z-20"
+        style={{ borderBottom: '1px solid rgba(34,211,238,.12)', background: 'rgba(6,13,26,.8)', backdropFilter: 'blur(10px)' }}>
         <AnimatePresence mode="wait">
-          <motion.div
-            key={levelNumber}
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 10 }}
-          >
-            <div className="hud-font text-xs tracking-widest mb-1" style={{ color: char.color }}>
-              SEKTOR {SECTOR_NAMES[state.currentLevel]}
+          <motion.div key={levelNumber} className="flex items-center gap-3"
+            initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0 }}>
+            <div className="hud-font text-[11px] tracking-widest" style={{ color: char.color }}>
+              ◈ SEKTOR {SECTOR_NAMES[state.currentLevel]}
             </div>
             <div className="text-slate-500 text-xs">
               {char.bonusLevels.includes(levelNumber) && (
@@ -704,32 +693,95 @@ export default function Game() {
             </div>
           </motion.div>
         </AnimatePresence>
-      </div>
 
-      {/* Level content */}
-      <div className="px-4 pb-12 max-w-3xl mx-auto">
-        {/* Global timer badge */}
-        <div className="flex justify-center mb-2">
+        {/* Timer — right side of top HUD */}
+        <div className="ml-auto flex items-center gap-3">
           <GlobalTimerBadge />
+          {timerActive && timeLeft != null && (
+            <motion.div
+              className="hud-font tabular-nums"
+              style={{ fontSize: 22, letterSpacing: '.12em', color: timeColor, textShadow: `0 0 18px ${timeColor}55` }}
+              animate={timeLeft <= 30 ? { scale: [1, 1.06, 1] } : { scale: 1 }}
+              transition={{ duration: timeLeft <= 10 ? 0.4 : 0.8, repeat: Infinity, ease: 'easeInOut' }}
+            >
+              {timeLeft <= 10 && '⚠ '}{fmtTime(timeLeft)}
+            </motion.div>
+          )}
+          <FullscreenButton />
         </div>
-
-        {/* Story scene illustration */}
-        <StoryScene levelNumber={levelNumber} />
-
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={levelNumber}
-            initial={{ opacity: 0, x: 40 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -40 }}
-            transition={{ duration: 0.3 }}
-          >
-            <GameContext.Provider value={{ state, completeLevel: handleLevelComplete, levelNumber, timeLeft }}>
-              <LevelComponent state={state} onComplete={handleLevelComplete} />
-            </GameContext.Provider>
-          </motion.div>
-        </AnimatePresence>
       </div>
+
+      {/* ── CENTER CONTENT ── */}
+      <div className="flex-1 overflow-y-auto">
+        <div className="max-w-2xl mx-auto px-4 py-5 pb-6">
+          <StoryScene levelNumber={levelNumber} />
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={levelNumber}
+              initial={{ opacity: 0, x: 40 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -40 }}
+              transition={{ duration: 0.3 }}
+            >
+              <GameContext.Provider value={{ state, completeLevel: handleLevelComplete, levelNumber, timeLeft }}>
+                <LevelComponent state={state} onComplete={handleLevelComplete} />
+              </GameContext.Provider>
+            </motion.div>
+          </AnimatePresence>
+        </div>
+      </div>
+
+      {/* ── BOTTOM HUD ── */}
+      <div className="flex-shrink-0 flex items-center gap-2 px-5 py-2 z-20 flex-wrap"
+        style={{ borderTop: '1px solid rgba(34,211,238,.1)', background: 'rgba(6,13,26,.8)', backdropFilter: 'blur(10px)' }}>
+        {[
+          { l: 'TEAM', v: state.teamName },
+          { l: 'SEKTOR', v: `${levelNumber} / 20` },
+          { l: 'AKT', v: `${Math.ceil(levelNumber / 4)} / 5` },
+          { l: 'WP', v: `${state.wissensPunkte}` },
+          { l: 'BUDGET', v: `${state.budget} Cr` },
+          { l: 'DOSIS', v: `${state.dosimeterMSv} mSv` },
+        ].map(b => (
+          <div key={b.l} className="hud-font text-[10px] px-2.5 py-1 rounded"
+            style={{ background: 'rgba(34,211,238,.05)', border: '1px solid rgba(34,211,238,.15)', color: '#475569' }}>
+            {b.l} <span style={{ color: '#22d3ee' }}>{b.v}</span>
+          </div>
+        ))}
+        <button
+          onClick={() => setMapOpen(v => !v)}
+          className="ml-auto hud-font text-[10px] px-3 py-1 rounded transition-all hover:brightness-125"
+          style={{ background: 'rgba(124,58,237,.15)', border: '1px solid rgba(124,58,237,.4)', color: '#a78bfa' }}
+        >
+          KARTE [M]
+        </button>
+      </div>
+
+      {/* ── MAP OVERLAY ── */}
+      <AnimatePresence>
+        {mapOpen && (
+          <motion.div
+            className="fixed inset-0 z-50 flex items-center justify-center"
+            style={{ background: 'rgba(0,0,0,.65)', backdropFilter: 'blur(6px)' }}
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            onClick={() => setMapOpen(false)}
+          >
+            <motion.div
+              initial={{ scale: .9, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: .9, y: 20 }}
+              className="glass-panel p-5 max-w-lg w-full mx-4"
+              onClick={e => e.stopPropagation()}
+            >
+              <div className="flex items-center justify-between mb-3">
+                <div className="hud-font text-xs tracking-widest" style={{ color: '#22d3ee' }}>◈ STATIONSKARTE — U.S.S. BLANKENAGEL</div>
+                <button onClick={() => setMapOpen(false)}
+                  className="hud-font text-[10px] px-2 py-0.5 rounded" style={{ color: '#64748b', border: '1px solid #1e293b' }}>
+                  [ESC]
+                </button>
+              </div>
+              <ShipMap currentLevel={state.currentLevel} />
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
     </div>
   )
