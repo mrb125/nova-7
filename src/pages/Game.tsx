@@ -658,12 +658,6 @@ export default function Game() {
   }
 
   const char = getCharacter(state.characterId)
-  const timeLimitForLevel = (() => {
-    let limit = getEffectiveTimeLimit(levelNumber)
-    if (state.characterId === 'leon' && [11, 12, 13, 16, 20].includes(levelNumber)) limit += 60
-    return limit
-  })()
-
   const LevelComponent = LEVELS[state.currentLevel]
 
   const timeColor = timeLeft != null && timeLeft <= 30 ? '#ef4444' : timeLeft != null && timeLeft <= 60 ? '#f59e0b' : '#22d3ee'
