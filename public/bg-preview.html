@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<title>Nova-7 — Hintergrundbilder Vorschau</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #020812; font-family: monospace; padding: 24px; }
+  h1 { color: #06b6d4; text-align: center; font-size: 18px; letter-spacing: 4px; margin-bottom: 24px; }
+  .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; max-width: 1200px; margin: 0 auto; }
+  .card { border-radius: 10px; overflow: hidden; border: 1px solid rgba(255,255,255,0.08); }
+  .bg { height: 160px; position: relative; }
+  .label { padding: 8px 10px; background: #0a1120; }
+  .sector { font-size: 9px; letter-spacing: 3px; color: #475569; }
+  .room { font-size: 11px; color: #e2e8f0; margin-top: 2px; font-weight: bold; }
+
+  /* ── 1 · ALPHA — Medizinstation ── */
+  .bg1 {
+    background:
+      radial-gradient(ellipse 60% 40% at 20% 50%, rgba(239,68,68,0.18) 0%, transparent 60%),
+      radial-gradient(ellipse 40% 60% at 80% 30%, rgba(239,68,68,0.08) 0%, transparent 50%),
+      linear-gradient(160deg, #0a0f1a 0%, #120a0a 50%, #0d0505 100%);
+  }
+  .bg1::before {
+    content:''; position:absolute; inset:0;
+    background: repeating-linear-gradient(0deg, transparent, transparent 18px, rgba(239,68,68,0.03) 18px, rgba(239,68,68,0.03) 19px),
+                repeating-linear-gradient(90deg, transparent, transparent 18px, rgba(239,68,68,0.03) 18px, rgba(239,68,68,0.03) 19px);
+  }
+  .bg1::after { content:'+'; position:absolute; left:14%; top:28%; font-size:36px; color:rgba(239,68,68,0.25); }
+
+  /* ── 2 · BETA — Isotopenlabor ── */
+  .bg2 {
+    background:
+      radial-gradient(ellipse 50% 70% at 75% 60%, rgba(16,185,129,0.15) 0%, transparent 55%),
+      radial-gradient(circle 30% at 25% 40%, rgba(16,185,129,0.07) 0%, transparent 50%),
+      linear-gradient(180deg, #050e0a 0%, #071410 100%);
+  }
+  .bg2::before {
+    content:''; position:absolute; inset:0;
+    background: repeating-linear-gradient(90deg, rgba(16,185,129,0.04) 0px, rgba(16,185,129,0.04) 1px, transparent 1px, transparent 30px);
+  }
+
+  /* ── 3 · GAMMA — Monitoring-Deck ── */
+  .bg3 {
+    background:
+      radial-gradient(ellipse 80% 40% at 50% 80%, rgba(100,116,139,0.2) 0%, transparent 60%),
+      radial-gradient(circle 20% at 20% 20%, rgba(6,182,212,0.08) 0%, transparent 40%),
+      linear-gradient(170deg, #050a0f 0%, #08111a 60%, #040c14 100%);
+  }
+  .bg3::before {
+    content:''; position:absolute; inset:0;
+    background:
+      repeating-linear-gradient(0deg, transparent, transparent 30px, rgba(6,182,212,0.04) 30px, rgba(6,182,212,0.04) 31px),
+      repeating-linear-gradient(90deg, transparent, transparent 30px, rgba(6,182,212,0.04) 30px, rgba(6,182,212,0.04) 31px);
+  }
+
+  /* ── 4 · DELTA — Ausrüstungsdepot ── */
+  .bg4 {
+    background:
+      radial-gradient(ellipse 60% 50% at 60% 40%, rgba(6,182,212,0.15) 0%, transparent 55%),
+      linear-gradient(135deg, #040e14 0%, #071520 100%);
+  }
+  .bg4::before {
+    content:''; position:absolute; inset:0;
+    background: repeating-linear-gradient(45deg, rgba(6,182,212,0.03) 0px, rgba(6,182,212,0.03) 1px, transparent 1px, transparent 20px);
+  }
+
+  /* ── 5 · EPSILON — Schleusenbereich ── */
+  .bg5 {
+    background:
+      radial-gradient(ellipse 70% 50% at 30% 60%, rgba(249,115,22,0.15) 0%, transparent 55%),
+      radial-gradient(circle 25% at 80% 30%, rgba(249,115,22,0.08) 0%, transparent 40%),
+      linear-gradient(160deg, #0a0802 0%, #140d03 60%, #0a0901 100%);
+  }
+  .bg5::before {
+    content:''; position:absolute; inset:0;
+    background: repeating-linear-gradient(135deg, rgba(249,115,22,0.03) 0px, rgba(249,115,22,0.03) 2px, transparent 2px, transparent 15px);
+  }
+  .bg5::after { content:'☢'; position:absolute; right:12%; top:20%; font-size:28px; color:rgba(249,115,22,0.2); }
+
+  /* ── 6 · ZETA — Technikmodul ── */
+  .bg6 {
+    background:
+      radial-gradient(ellipse 50% 60% at 40% 50%, rgba(245,158,11,0.12) 0%, transparent 55%),
+      linear-gradient(170deg, #0c0a02 0%, #100c04 100%);
+  }
+  .bg6::before {
+    content:''; position:absolute; inset:0;
+    background:
+      repeating-linear-gradient(0deg, transparent, transparent 20px, rgba(245,158,11,0.04) 20px, rgba(245,158,11,0.04) 21px),
+      repeating-linear-gradient(90deg, transparent, transparent 40px, rgba(245,158,11,0.04) 40px, rgba(245,158,11,0.04) 41px);
+  }
+
+  /* ── 7 · ETA — Holographielabor ── */
+  .bg7 {
+    background:
+      radial-gradient(ellipse 60% 80% at 50% 50%, rgba(167,139,250,0.18) 0%, transparent 55%),
+      radial-gradient(circle 30% at 20% 70%, rgba(139,92,246,0.1) 0%, transparent 40%),
+      linear-gradient(160deg, #07050f 0%, #0d0a1a 100%);
+  }
+  .bg7::before {
+    content:''; position:absolute; inset:0;
+    background: radial-gradient(ellipse 100% 60% at 50% 50%, rgba(167,139,250,0.06) 0%, transparent 70%);
+  }
+
+  /* ── 8 · THETA — Quantenarchiv ── */
+  .bg8 {
+    background:
+      radial-gradient(ellipse 80% 50% at 50% 60%, rgba(6,182,212,0.12) 0%, transparent 60%),
+      radial-gradient(circle 20% at 20% 30%, rgba(6,182,212,0.07) 0%, transparent 40%),
+      linear-gradient(180deg, #030c12 0%, #041018 100%);
+  }
+  .bg8::before {
+    content:''; position:absolute; inset:0;
+    background: repeating-linear-gradient(180deg, transparent, transparent 24px, rgba(6,182,212,0.03) 24px, rgba(6,182,212,0.03) 25px);
+  }
+
+  /* ── 9 · IOTA — Medizin-Labor ── */
+  .bg9 {
+    background:
+      radial-gradient(ellipse 60% 70% at 60% 40%, rgba(167,139,250,0.2) 0%, transparent 55%),
+      radial-gradient(circle 35% at 20% 70%, rgba(236,72,153,0.08) 0%, transparent 50%),
+      linear-gradient(160deg, #08040f 0%, #0f0718 60%, #0a0512 100%);
+  }
+  .bg9::before {
+    content:''; position:absolute; inset:0;
+    background: repeating-linear-gradient(60deg, rgba(167,139,250,0.03) 0px, rgba(167,139,250,0.03) 1px, transparent 1px, transparent 22px);
+  }
+
+  /* ── 10 · KAPPA — Datennetz-Hub ── */
+  .bg10 {
+    background:
+      radial-gradient(ellipse 70% 50% at 70% 40%, rgba(129,140,248,0.15) 0%, transparent 55%),
+      radial-gradient(circle 30% at 20% 60%, rgba(99,102,241,0.08) 0%, transparent 40%),
+      linear-gradient(150deg, #04050f 0%, #080a1a 100%);
+  }
+  .bg10::before {
+    content:''; position:absolute; inset:0;
+    background:
+      radial-gradient(circle at 70% 40%, rgba(129,140,248,0.1) 0%, transparent 30%),
+      radial-gradient(circle at 30% 70%, rgba(129,140,248,0.06) 0%, transparent 20%);
+  }
+
+  /* ── 11 · LAMBDA — Quantenserver ── */
+  .bg11 {
+    background:
+      radial-gradient(ellipse 60% 80% at 50% 30%, rgba(34,211,238,0.15) 0%, transparent 55%),
+      radial-gradient(circle 40% at 80% 70%, rgba(6,182,212,0.08) 0%, transparent 45%),
+      linear-gradient(170deg, #030c10 0%, #040f14 100%);
+  }
+  .bg11::before {
+    content:''; position:absolute; inset:0;
+    background:
+      repeating-linear-gradient(0deg, transparent, transparent 12px, rgba(34,211,238,0.03) 12px, rgba(34,211,238,0.03) 13px),
+      repeating-linear-gradient(90deg, transparent, transparent 12px, rgba(34,211,238,0.03) 12px, rgba(34,211,238,0.03) 13px);
+  }
+
+  /* ── 12 · MU — Hydroponics-Bay ── */
+  .bg12 {
+    background:
+      radial-gradient(ellipse 70% 50% at 40% 60%, rgba(16,185,129,0.14) 0%, transparent 55%),
+      radial-gradient(circle 30% at 75% 30%, rgba(234,179,8,0.08) 0%, transparent 40%),
+      linear-gradient(160deg, #040c08 0%, #061008 60%, #04100a 100%);
+  }
+  .bg12::before {
+    content:''; position:absolute; inset:0;
+    background: repeating-linear-gradient(75deg, rgba(16,185,129,0.03) 0px, rgba(16,185,129,0.03) 1px, transparent 1px, transparent 18px);
+  }
+
+  /* ── 13 · NU — Triagestation ── */
+  .bg13 {
+    background:
+      radial-gradient(ellipse 80% 50% at 30% 50%, rgba(245,158,11,0.15) 0%, transparent 55%),
+      radial-gradient(circle 30% at 80% 70%, rgba(239,68,68,0.1) 0%, transparent 40%),
+      linear-gradient(150deg, #0c0803 0%, #120a03 60%, #0e0802 100%);
+  }
+  .bg13::before {
+    content:''; position:absolute; inset:0;
+    background: repeating-linear-gradient(0deg, rgba(245,158,11,0.03) 0px, rgba(245,158,11,0.03) 1px, transparent 1px, transparent 22px);
+  }
+  .bg13::after { content:'+'; position:absolute; left:10%; top:20%; font-size:40px; color:rgba(245,158,11,0.2); }
+
+  /* ── 14 · XI — Fusionsreaktor ── */
+  .bg14 {
+    background:
+      radial-gradient(circle 50% at 50% 50%, rgba(239,68,68,0.2) 0%, rgba(239,68,68,0.05) 40%, transparent 65%),
+      radial-gradient(ellipse 90% 40% at 50% 80%, rgba(245,158,11,0.1) 0%, transparent 50%),
+      linear-gradient(180deg, #0c0303 0%, #120404 50%, #0a0302 100%);
+  }
+  .bg14::before {
+    content:''; position:absolute; inset:0;
+    background: radial-gradient(circle at 50% 50%, rgba(239,68,68,0.08) 0%, transparent 50%);
+  }
+
+  /* ── 15 · OMIKRON — Notschleuse ── */
+  .bg15 {
+    background:
+      radial-gradient(ellipse 60% 50% at 30% 50%, rgba(245,158,11,0.12) 0%, transparent 55%),
+      radial-gradient(circle 20% at 80% 30%, rgba(245,158,11,0.06) 0%, transparent 35%),
+      linear-gradient(160deg, #0a0902 0%, #100e04 100%);
+  }
+  .bg15::before {
+    content:''; position:absolute; inset:0;
+    background:
+      repeating-linear-gradient(90deg, transparent, transparent 50px, rgba(245,158,11,0.04) 50px, rgba(245,158,11,0.04) 51px);
+  }
+
+  /* ── 16 · PI — Rettungsdock ── */
+  .bg16 {
+    background:
+      radial-gradient(ellipse 80% 60% at 50% 40%, rgba(16,185,129,0.15) 0%, transparent 55%),
+      radial-gradient(circle 30% at 20% 80%, rgba(6,182,212,0.08) 0%, transparent 40%),
+      linear-gradient(170deg, #030c08 0%, #041008 60%, #030d07 100%);
+  }
+  .bg16::before {
+    content:''; position:absolute; inset:0;
+    background: radial-gradient(ellipse 60% 60% at 50% 40%, rgba(16,185,129,0.08) 0%, transparent 60%);
+  }
+
+  /* Stars overlay for all */
+  .stars { position:absolute; inset:0; overflow:hidden; }
+  .stars span { position:absolute; border-radius:50%; background:white; }
+</style>
+</head>
+<body>
+<h1>NOVA-7 — HINTERGRUNDBILDER VORSCHAU</h1>
+<div class="grid">
+
+  <div class="card">
+    <div class="bg bg1">
+      <div class="stars" id="s1"></div>
+      <div style="position:absolute;top:8px;right:10px;font-size:9px;letter-spacing:2px;color:rgba(239,68,68,0.6)">SEKTOR ALPHA</div>
+    </div>
+    <div class="label"><div class="sector">LEVEL 1</div><div class="room">🏥 Medizinstation</div></div>
+  </div>
+
+  <div class="card">
+    <div class="bg bg2">
+      <div class="stars" id="s2"></div>
+      <div style="position:absolute;top:8px;right:10px;font-size:9px;letter-spacing:2px;color:rgba(16,185,129,0.6)">SEKTOR BETA</div>
+    </div>
+    <div class="label"><div class="sector">LEVEL 2</div><div class="room">⚗️ Isotopenlabor</div></div>
+  </div>
+
+  <div class="card">
+    <div class="bg bg3">
+      <div class="stars" id="s3"></div>
+      <div style="position:absolute;top:8px;right:10px;font-size:9px;letter-spacing:2px;color:rgba(100,116,139,0.8)">SEKTOR GAMMA</div>
+    </div>
+    <div class="label"><div class="sector">LEVEL 3</div><div class="room">📡 Monitoring-Deck</div></div>
+  </div>
+
+  <div class="card">
+    <div class="bg bg4">
+      <div class="stars" id="s4"></div>
+      <div style="position:absolute;top:8px;right:10px;font-size:9px;letter-spacing:2px;color:rgba(6,182,212,0.7)">SEKTOR DELTA</div>
+    </div>
+    <div class="label"><div class="sector">LEVEL 4</div><div class="room">🛡️ Ausrüstungsdepot</div></div>
+  </div>
+
+  <div class="card">
+    <div class="bg bg5">
+      <div class="stars" id="s5"></div>
+      <div style="position:absolute;top:8px;right:10px;font-size:9px;letter-spacing:2px;color:rgba(249,115,22,0.7)">SEKTOR EPSILON</div>
+    </div>
+    <div class="label"><div class="sector">LEVEL 5</div><div class="room">☣️ Schleusenbereich</div></div>
+  </div>
+
+  <div class="card">
+    <div class="bg bg6">
+      <div class="stars" id="s6"></div>
+      <div style="position:absolute;top:8px;right:10px;font-size:9px;letter-spacing:2px;color:rgba(245,158,11,0.7)">SEKTOR ZETA</div>
+    </div>
+    <div class="label"><div class="sector">LEVEL 6</div><div class="room">⚙️ Technikmodul</div></div>
+  </div>
+
+  <div class="card">
+    <div class="bg bg7">
+      <div class="stars" id="s7"></div>
+      <div style="position:absolute;top:8px;right:10px;font-size:9px;letter-spacing:2px;color:rgba(167,139,250,0.7)">SEKTOR ETA</div>
+    </div>
+    <div class="label"><div class="sector">LEVEL 7</div><div class="room">🔮 Holographielabor</div></div>
+  </div>
+
+  <div class="card">
+    <div class="bg bg8">
+      <div class="stars" id="s8"></div>
+      <div style="position:absolute;top:8px;right:10px;font-size:9px;letter-spacing:2px;color:rgba(6,182,212,0.7)">SEKTOR THETA</div>
+    </div>
+    <div class="label"><div class="sector">LEVEL 8</div><div class="room">🗄️ Quantenarchiv</div></div>
+  </div>
+
+  <div class="card">
+    <div class="bg bg9">
+      <div class="stars" id="s9"></div>
+      <div style="position:absolute;top:8px;right:10px;font-size:9px;letter-spacing:2px;color:rgba(167,139,250,0.7)">SEKTOR IOTA</div>
+    </div>
+    <div class="label"><div class="sector">LEVEL 9</div><div class="room">💉 Medizin-Labor</div></div>
+  </div>
+
+  <div class="card">
+    <div class="bg bg10">
+      <div class="stars" id="s10"></div>
+      <div style="position:absolute;top:8px;right:10px;font-size:9px;letter-spacing:2px;color:rgba(129,140,248,0.7)">SEKTOR KAPPA</div>
+    </div>
+    <div class="label"><div class="sector">LEVEL 10</div><div class="room">🌐 Datennetz-Hub</div></div>
+  </div>
+
+  <div class="card">
+    <div class="bg bg11">
+      <div class="stars" id="s11"></div>
+      <div style="position:absolute;top:8px;right:10px;font-size:9px;letter-spacing:2px;color:rgba(34,211,238,0.7)">SEKTOR LAMBDA</div>
+    </div>
+    <div class="label"><div class="sector">LEVEL 11</div><div class="room">💻 Quantenserver</div></div>
+  </div>
+
+  <div class="card">
+    <div class="bg bg12">
+      <div class="stars" id="s12"></div>
+      <div style="position:absolute;top:8px;right:10px;font-size:9px;letter-spacing:2px;color:rgba(16,185,129,0.7)">SEKTOR MU</div>
+    </div>
+    <div class="label"><div class="sector">LEVEL 12</div><div class="room">🌿 Hydroponics-Bay</div></div>
+  </div>
+
+  <div class="card">
+    <div class="bg bg13">
+      <div class="stars" id="s13"></div>
+      <div style="position:absolute;top:8px;right:10px;font-size:9px;letter-spacing:2px;color:rgba(245,158,11,0.7)">SEKTOR NU</div>
+    </div>
+    <div class="label"><div class="sector">LEVEL 13</div><div class="room">🚨 Triagestation</div></div>
+  </div>
+
+  <div class="card">
+    <div class="bg bg14">
+      <div class="stars" id="s14"></div>
+      <div style="position:absolute;top:8px;right:10px;font-size:9px;letter-spacing:2px;color:rgba(239,68,68,0.7)">SEKTOR XI</div>
+    </div>
+    <div class="label"><div class="sector">LEVEL 14</div><div class="room">⚡ Fusionsreaktor</div></div>
+  </div>
+
+  <div class="card">
+    <div class="bg bg15">
+      <div class="stars" id="s15"></div>
+      <div style="position:absolute;top:8px;right:10px;font-size:9px;letter-spacing:2px;color:rgba(245,158,11,0.7)">SEKTOR OMIKRON</div>
+    </div>
+    <div class="label"><div class="sector">LEVEL 15</div><div class="room">🚪 Notschleuse</div></div>
+  </div>
+
+  <div class="card">
+    <div class="bg bg16">
+      <div class="stars" id="s16"></div>
+      <div style="position:absolute;top:8px;right:10px;font-size:9px;letter-spacing:2px;color:rgba(16,185,129,0.7)">SEKTOR PI</div>
+    </div>
+    <div class="label"><div class="sector">LEVEL 16</div><div class="room">🚀 Rettungsdock</div></div>
+  </div>
+
+</div>
+
+<script>
+// Add random stars to each card
+for (let i = 1; i <= 16; i++) {
+  const container = document.getElementById('s' + i)
+  if (!container) continue
+  for (let j = 0; j < 30; j++) {
+    const s = document.createElement('span')
+    const size = Math.random() < 0.15 ? 2 : 1
+    s.style.cssText = `width:${size}px;height:${size}px;top:${Math.random()*100}%;left:${Math.random()*100}%;opacity:${0.2+Math.random()*0.5}`
+    container.appendChild(s)
+  }
+}
+</script>
+</body>
+</html>
